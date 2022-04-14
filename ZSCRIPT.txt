@@ -1,0 +1,9 @@
+version "4.3.3"
+
+#include "zscripts/BtHelperFunctions.zs"
+#include "zscripts/BtActorInfo.zs"
+#include "zscripts/BtItemData.zs"
+#include "zscripts/BtMonsterInfo.zs"
+#include "zscripts/BtSectorInfo.zs"
+#include "zscripts/PostTickDummyController.zs"
+#include "zscripts/handlers/BulletTime.zs"

@@ -1,0 +1,7 @@
+HardwareShader PostProcess Scene
+{
+	Name "btshader"
+	Shader "shaders/btshader.fp" 330
+	Uniform int btEffectCounter
+	Uniform int btEffectInvulnerability
+}

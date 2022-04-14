@@ -1,0 +1,25 @@
+AddOptionMenu "OptionsMenu"
+{
+    Submenu "Bullet Time X Options", "BtOptions"
+}
+
+OptionMenu "BtOptions"
+{
+    Title "Bullet Time X Options"
+
+    StaticText " "
+    StaticText "Changes will take effect on next level"
+    
+    StaticText " "
+    Slider "Bullet Time Multiplier", "bt_multiplier", 2, 10, 1
+    StaticText "                Default is 4"
+    StaticText " "
+
+    StaticText " "
+    Slider "Bullet Time Max Duration", "bt_max_duration", 15, 120, 15
+    StaticText "                         Default is 15 seconds"
+    StaticText " "
+
+    StaticText " "
+    Option "Enable Heartbeat Sound Effect", "bt_heartbeat", "OnOff"
+}

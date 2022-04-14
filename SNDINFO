@@ -1,0 +1,6 @@
+SLWSTART SLWSTART
+SLWSTOP SLWSTOP
+SLWLOOP SLWLOOP
+
+$playersound   player   male   *grunt      dsoof
+$playersounddup   player   male   *land      *grunt
