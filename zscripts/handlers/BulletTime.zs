@@ -23,6 +23,8 @@ class BulletTime : EventHandler
 	int btMaxDurationMultiplier;
 	int btMaxDurationCounter;
 
+	int testTic;
+
 	// post tick bt controller
 	PostTickDummyController postTickController;
 
@@ -78,6 +80,7 @@ class BulletTime : EventHandler
 		btEffectInvulnerability = false;
 		btSecondTick = 0;
 		btSandClock = TexMan.CheckForTexture("SLCK", TexMan.Type_Any);
+		testTic = 0;
 
 		// removes all berserker counter when changing maps
 		PlayerPawn doomPlayer;
@@ -451,6 +454,7 @@ class BulletTime : EventHandler
 		slowPlayers(bulletTime);
 		slowActors(bulletTime);
 		slowScrollers(bulletTime);
+		// slowDecals(bulletTime);
 	}
 
 	void slowActors(bool applySlow)
@@ -748,6 +752,7 @@ class BulletTime : EventHandler
 		}
 	}
 
+// TODO: DBaseDecal (es una clase)
 	void slowScrollers(bool applySlow)
 	{
 		if (btTic >= btMultiplier)
@@ -756,8 +761,11 @@ class BulletTime : EventHandler
 			ThinkerIterator testingList = ThinkerIterator.Create("Object", Thinker.STAT_STATIC);
 			while (scrollerThinker = Thinker(testingList.Next()) )
 			{
-				scrollerThinker.changeStatNum(Thinker.STAT_SCROLLER);
-				
+				string thinkerClassName = scrollerThinker.GetClassName();
+				if (thinkerClassName == "Scroller")
+				{
+					scrollerThinker.changeStatNum(Thinker.STAT_SCROLLER);
+				}	
 			}
 		}
 		else if (btTic == 0)
@@ -766,7 +774,11 @@ class BulletTime : EventHandler
 			ThinkerIterator testingList = ThinkerIterator.Create("Object", Thinker.STAT_SCROLLER);
 			while (scrollerThinker = Thinker(testingList.Next()) )
 			{
-				scrollerThinker.changeStatNum(Thinker.STAT_STATIC);
+				string thinkerClassName = scrollerThinker.GetClassName();
+				if (thinkerClassName == "Scroller")
+				{
+					scrollerThinker.changeStatNum(Thinker.STAT_STATIC);
+				}
 			}
 		}
 
@@ -776,11 +788,68 @@ class BulletTime : EventHandler
 			ThinkerIterator testingList = ThinkerIterator.Create("Object", Thinker.STAT_STATIC);
 			while (scrollerThinker = Thinker(testingList.Next()) )
 			{
-				scrollerThinker.changeStatNum(Thinker.STAT_SCROLLER);
-				
+				string thinkerClassName = scrollerThinker.GetClassName();
+				if (thinkerClassName == "Scroller")
+				{
+					scrollerThinker.changeStatNum(Thinker.STAT_SCROLLER);
+				}	
 			}
 		}
 	}
+
+	// void slowDecals(bool applySlow)
+	// {
+	// 	console.printf("TESTINGGGG %d", testTic);
+	// 	if (testTic == 75)
+	// 	{
+	// 		Thinker scrollerThinker;
+	// 		ThinkerIterator testingList = ThinkerIterator.Create("Object", Thinker.STAT_STATIC);
+	// 		while (scrollerThinker = Thinker(testingList.Next()) )
+	// 		{
+	// 			string thinkerClassName = scrollerThinker.GetClassName();
+	// 			console.printf("thinker class name is 111 %s", thinkerClassName);
+	// 			if (thinkerClassName == "DecalFader")
+	// 			{
+	// 				// console.printf("TESTING TIC IS %d", scrollerThinker.tics);
+	// 				scrollerThinker.changeStatNum(Thinker.STAT_DECALTHINKER);
+	// 			}	
+	// 		}
+	// 	}
+	// 	else if (testTic <= 76)
+	// 	{
+	// 		console.printf("TEST TIC IS 2222222222 %d", testTic);
+	// 		Thinker scrollerThinker;
+	// 		ThinkerIterator testingList = ThinkerIterator.Create("Object", Thinker.STAT_DECALTHINKER);
+	// 		while (scrollerThinker = Thinker(testingList.Next()) )
+	// 		{
+	// 			string thinkerClassName = scrollerThinker.GetClassName();
+	// 			console.printf("thinker class name is 22222  %s", thinkerClassName);
+	// 			if (thinkerClassName == "DecalFader")
+	// 			{
+	// 				// console.printf("222222 TESTING TIC IS %d", scrollerThinker.tics);
+	// 				scrollerThinker.changeStatNum(Thinker.STAT_STATIC);
+	// 			}
+	// 		}
+	// 	}
+	// 	testTic++;
+
+	// 	if (testTic > 150) testTic = 0;
+
+	// 	// if (!applySlow)
+	// 	// {
+	// 	// 	Thinker scrollerThinker;
+	// 	// 	ThinkerIterator testingList = ThinkerIterator.Create("DecalFader", Thinker.STAT_STATIC);
+	// 	// 	while (scrollerThinker = Thinker(testingList.Next()) )
+	// 	// 	{
+	// 	// 		string thinkerClassName = scrollerThinker.GetClassName();
+	// 	// 		console.printf("thinker class name is 3333 %s", thinkerClassName);
+	// 	// 		if (thinkerClassName == "DecalFader")
+	// 	// 		{
+	// 	// 			scrollerThinker.changeStatNum(Thinker.STAT_SCROLLER);
+	// 	// 		}	
+	// 	// 	}
+	// 	// }
+	// }
 
 	void slowMovingSectors(bool applySlow)
 	{
