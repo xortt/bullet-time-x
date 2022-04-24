@@ -85,6 +85,8 @@ class BulletTime : EventHandler
 
 		while (doomPlayer = PlayerPawn(playerList.Next()) )
 		{
+			bool isVoodooDoll = BtHelperFunctions.isPlayerPawnVoodooDoll(doomPlayer);
+			if (isVoodooDoll) continue;
 			doomPlayer.SetInventory("BtBerserkerCounter", 0);
 		}
 	}
@@ -269,6 +271,9 @@ class BulletTime : EventHandler
 
 		while (doomPlayer = PlayerPawn(playerList.Next()) )
 		{
+			bool isVoodooDoll = BtHelperFunctions.isPlayerPawnVoodooDoll(doomPlayer);
+			if (isVoodooDoll) continue;
+
 			Inventory btInv = doomPlayer.FindInventory("BtItemData");
 			BtItemData btItemData = btInv == NULL
 					? BtItemData(doomPlayer.GiveInventoryType("BtItemData"))
@@ -457,7 +462,6 @@ class BulletTime : EventHandler
 	{
 		Actor curActor;
 		ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
-
 		while (curActor = Actor(actorList.Next()) )
 		{
 			Inventory btInv = curActor.FindInventory("BtItemData");
@@ -531,6 +535,9 @@ class BulletTime : EventHandler
 
 		while (doomPlayer = PlayerPawn(playerList.Next()) )
 		{
+			bool isVoodooDoll = BtHelperFunctions.isPlayerPawnVoodooDoll(doomPlayer);
+			if (isVoodooDoll) continue;
+
 			Inventory btInv = doomPlayer.FindInventory("BtItemData");
 			BtItemData btItemData = btInv == NULL
 					? BtItemData(doomPlayer.GiveInventoryType("BtItemData"))

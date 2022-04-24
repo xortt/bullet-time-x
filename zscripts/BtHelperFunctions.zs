@@ -36,4 +36,16 @@ class BtHelperFunctions
 
         return playerIsSteppingActor;
     }
+
+    /* Goes through all players list verifying that given PlayerPawn is present in the list.
+        If it is not present then it's a voodoo doll.
+    */
+    static bool isPlayerPawnVoodooDoll(PlayerPawn curPlayer)
+    {
+        for (int i = 0; i < players.Size(); i++)
+        {
+            if (curPlayer == players[i].mo) return false;
+        }
+        return true;
+    }
 }

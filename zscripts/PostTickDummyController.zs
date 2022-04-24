@@ -146,6 +146,9 @@ class PostTickDummyController : Actor
 
 		while (doomPlayer = PlayerPawn(playerList.Next()) )
 		{
+			bool isVoodooDoll = BtHelperFunctions.isPlayerPawnVoodooDoll(doomPlayer);
+			if (isVoodooDoll) continue;
+			
 			for (int k = 0; k < sectorInfoList.Size(); k++)
 			{
 				// check if player is on a lift
