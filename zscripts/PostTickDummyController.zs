@@ -20,7 +20,6 @@ class PostTickDummyController : Actor
 	{
 		slowMovingSectors();
 		slowPlayers();
-		slowActors();
 
 		if (!applySlow)
 		{
@@ -201,42 +200,6 @@ class PostTickDummyController : Actor
 					btItemData.actorInfo.newChangedSpeed = doomPlayer.speed;
 				}
 			}
-		}
-	}
-
-	void slowActors()
-	{
-		/*
-			TODO: Is there any way to not loop through all actors? Maybe only sectors that are moving only? Maybe with blockmaps?
-		*/
-		Actor curActor;
-		ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
-		
-		while (curActor = Actor(actorList.Next()) )
-		{
-			for (int k = 0; k < sectorInfoList.Size(); k++)
-			{
-				// check if actor is on a lift
-				if (sectorInfoList[k].sectorID == curActor.CurSector.sectornum && sectorInfoList[k].floorSpeed != 0)
-				{
-					double distanceActorFloor = abs(curActor.floorz - curActor.pos.z);
-
-					if (curActor.pos.z != curActor.floorz && curActor.vel.z == 0 && distanceActorFloor < abs(sectorInfoList[k].floorSpeed) * 2)
-					{
-						// fix actor pos
-						curActor.SetOrigin((curActor.pos.x, curActor.pos.y, curActor.floorz), true);
-					}
-					if (curActor.pos.z == curActor.floorz && sectorInfoList[k].floorSpeed > 0 && curActor.vel.z != 0)
-					{
-						curActor.vel.z = 0;
-					}
-				}
-			}
-
-			// Slow sound pitch
-			float soundPitch = applySlow ? clamp(2.0 / btMultiplier, 0.3, 1.0) : 1.0;
-			for (int k = 0; k < 8; k++)
-				curActor.A_SoundPitch(k, soundPitch);
 		}
 	}
 }

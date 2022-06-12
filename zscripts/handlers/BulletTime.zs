@@ -5,7 +5,7 @@ class BulletTime : EventHandler
 
 	PlayerPawn btPlayerActivator;
 
-	int btSecondTick; // on 35th tic it resets to 0
+	int btOneSecondTick; // on 35th tic it resets to 0
 
 	// stores Monsters adrenaline related data, used with bullet time on and off
 	Array<BtMonsterInfo> btMonsterInfoList;
@@ -76,7 +76,7 @@ class BulletTime : EventHandler
 		// initialize variables
 		btEffectCounter = 0;
 		btEffectInvulnerability = false;
-		btSecondTick = 0;
+		btOneSecondTick = 0;
 		btSandClock = TexMan.CheckForTexture("SLCK", TexMan.Type_Any);
 
 		// removes all berserker counter when changing maps
@@ -101,10 +101,19 @@ class BulletTime : EventHandler
 
 	override void WorldTick()
 	{
+		bool doUpdateMonsterInfoList = btOneSecondTick == 35;
 		if (btActive)
 		{
-			slowGame(true);
+			slowGame(true, doUpdateMonsterInfoList);
 		}
+		else if (doUpdateMonsterInfoList)
+		{
+			trackActors(false, false, doUpdateMonsterInfoList); // on 35th tic, check for new monsters (spanwed, resurrected)
+		}
+
+		// counter for updating monster info list every 35 tics.
+		if (doUpdateMonsterInfoList) btOneSecondTick = 0;
+		else btOneSecondTick++;
 
 		// check if Player can keep using bullet time
 		if (btPlayerActivator)
@@ -116,6 +125,7 @@ class BulletTime : EventHandler
 			}
 			btMaxDurationCounter = btMaxDurationCounter >= btMaxDurationMultiplier ? 1 : btMaxDurationCounter + 1;
 
+			// disables bullet time when ran out of adrenaline / player hit floor or step onto another actor
 			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1);
 			if ((!canUseBulletTime || btPlayerActivator.health < 1) && (btPlayerActivator.floorz == btPlayerActivator.pos.z || BtHelperFunctions.checkPlayerIsSteppingActor(btPlayerActivator)))
 			{
@@ -131,14 +141,6 @@ class BulletTime : EventHandler
 			if (btEffectCounter > 0) btEffectCounter = -8; 
 			else if (btEffectCounter < 0) btEffectCounter += 1;
 		}
-
-
-		if (btSecondTick == 35)
-		{
-			updateBtMonsterInfoList(); // on 35th tic, check for new monsters (spanwed, resurrected)
-			btSecondTick = 0;
-		}
-		else btSecondTick++;
 
 		handlePlayerAdrenaline();
 		handlePlayerAdrenalineKills();
@@ -247,7 +249,7 @@ class BulletTime : EventHandler
 		} 
 		else if (btActive)
 		{
-			slowGame(false);
+			slowGame(false, false);
 
 			if (player) 
 			{
@@ -416,114 +418,146 @@ class BulletTime : EventHandler
 	}
 
 	/**
+	* Retrieves Actor Item Data for bullet time tracking purposes.
+	* If it doesn't exist, creates it, change it's thinker stat num to prevent major perfomance issues and set it to curActor.
+	**/
+	BtItemData retrieveActorItemData(Actor curActor)
+	{
+		Inventory btInv = curActor.FindInventory("BtItemData");
+		BtItemData btItemData;
+
+		if (btInv) btItemData = BtItemData(btInv);
+		else
+		{
+			btItemData = BtItemData(curActor.GiveInventoryType("BtItemData"));
+			btItemData.ChangeStatNum(10);
+		}
+
+		return btItemData;
+	}
+
+	/**
 	* Creates / Updates Monster Info List. Actors that are considered monsters will be added.
 	* This actors must have health higher than 0 and can be counted as kills.
 	**/
-	void updateBtMonsterInfoList()
+	void updateBtMonsterInfoList(Actor curActor, BtItemData btItemData)
+	{
+		if (curActor.health > 0 && curActor.bCountKill)
+		{
+			BtMonsterInfo monsterInfo = new("BtMonsterInfo");
+
+			monsterInfo.actorRef = curActor;
+			monsterInfo.attacker = curActor.target;
+			monsterInfo.startHealth = curActor.health;
+			monsterInfo.isDead = false;
+
+			if (curActor.target) monsterInfo.secondAttacker = curActor.target.target;
+			else monsterInfo.secondAttacker = null;
+
+			btItemData.monsterInfo = monsterInfo;
+			btMonsterInfoList.Push(monsterInfo);
+		}
+	}
+
+	/**
+	* Track all Actors of current game. When bt is enabled, they will be slowed down / sped up.
+	* Also updates monsterInfoList if needed
+	**/
+	void trackActors(bool handleSlowActor, bool applySlow, bool doUpdateMonsterInfoList)
 	{
 		Actor curActor;
 		ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
 		
 		while (curActor = Actor(actorList.Next()))
 		{
-			Inventory btInv = curActor.FindInventory("BtItemData");
-			BtItemData btItemData = btInv == NULL
-					? BtItemData(curActor.GiveInventoryType("BtItemData"))
-					: BtItemData(btInv);
+			bool notStaticActor = curActor.tics > 0;
+			if (!notStaticActor) continue;
+
+			BtItemData btItemData = retrieveActorItemData(curActor);
 			
-			if (curActor.health > 0 && curActor.bCountKill && btItemData.monsterInfo == NULL)
+			if (btItemData.monsterInfo == NULL && doUpdateMonsterInfoList)
 			{
-				BtMonsterInfo monsterInfo = new("BtMonsterInfo");
+				updateBtMonsterInfoList(curActor, btItemData);
+			}
 
-				monsterInfo.actorRef = curActor;
-				monsterInfo.attacker = curActor.target;
-				monsterInfo.startHealth = curActor.health;
-				monsterInfo.isDead = false;
-
-				if (curActor.target) monsterInfo.secondAttacker = curActor.target.target;
-				else monsterInfo.secondAttacker = null;
-
-				btItemData.monsterInfo = monsterInfo;
-				btMonsterInfoList.Push(monsterInfo);
+			if (handleSlowActor)
+			{
+				slowActor(curActor, applySlow, btItemData);
 			}
 		}
 	}
 
-	void slowGame(bool bulletTime) 
+	void slowGame(bool bulletTime, bool updateMonsterInfoList)
 	{
 		slowLightSectors(bulletTime);
 		slowMovingSectors(bulletTime);
 		slowPlayers(bulletTime);
-		slowActors(bulletTime);
+		trackActors(true, bulletTime, updateMonsterInfoList);
 		slowScrollers(bulletTime);
 	}
 
-	void slowActors(bool applySlow)
+	void slowActor(Actor curActor, bool applySlow, BtItemData btItemData)
 	{
-		Actor curActor;
-		ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
-		while (curActor = Actor(actorList.Next()) )
+		bool createNewActorInfo = btItemData.actorInfo == NULL;
+
+		// if it doesn't have an actorInfo initialized, then create it and set the actor pointer
+		if (createNewActorInfo)
 		{
-			Inventory btInv = curActor.FindInventory("BtItemData");
-			BtItemData btItemData = btInv == NULL
-					? BtItemData(curActor.GiveInventoryType("BtItemData"))
-					: BtItemData(btInv);
-			
-			bool createNewActorInfo = btItemData.actorInfo == NULL;
-
-			// if it doesn't have an actorInfo initialized, then create it and set the actor pointer
-			if (createNewActorInfo)
-			{
-				BtActorInfo actorInfo = new("BtActorInfo");
-				actorInfo.actorRef = curActor;
-				btItemData.actorInfo = actorInfo;
-			}
-
-			if (createNewActorInfo || !applySlow)
-			{ // apply first slowdown (if new to the info list) or go back to its original speed (if bt ended)
-				curActor.vel = applySlow ? curActor.vel / btMultiplier : curActor.vel * btMultiplier;
-				if (curActor.tics != -1)
-					curActor.tics = applySlow ? curActor.tics * btMultiplier : curActor.tics / btMultiplier;
-			}
-			else if (!createNewActorInfo && applySlow)
-			{ // when bt is on, slow down velocity constantly
-				double velZZ = abs(curActor.vel.z - btItemData.actorInfo.lastVel.z);
-				bool newZ = velZZ > 1.1 && abs(curActor.vel.z) < 1000; // last
-
-				double velX = btItemData.actorInfo.lastVel.x != curActor.vel.x  && curActor.vel.x != 0
-							? btItemData.actorInfo.lastVel.x + (curActor.vel.x - btItemData.actorInfo.lastVel.x) / btMultiplier
-							: curActor.vel.x;
-				double velY = btItemData.actorInfo.lastVel.y != curActor.vel.y && curActor.vel.y != 0
-							? btItemData.actorInfo.lastVel.y + (curActor.vel.y - btItemData.actorInfo.lastVel.y) / btMultiplier
-							: curActor.vel.y;
-				double velZ = btItemData.actorInfo.lastVel.z != curActor.vel.z && (curActor.vel.z != 0 || (curActor.floorz != curActor.pos.z && curActor.ceilingz != curActor.pos.z + curActor.height))
-							? btItemData.actorInfo.lastVel.z + (curActor.vel.z - btItemData.actorInfo.lastVel.z) / (btMultiplier * btMultiplier)
-							: curActor.vel.z;
-
-				if (newZ) velZ *= btMultiplier;
-				if (velZZ > 1000) velZ = 0;
-				curActor.vel = (velX, velY, velZ);
-
-				if (btItemData.actorInfo.lastTics == 1 &&
-					btItemData.actorInfo.lastState != curActor.CurState &&
-					curActor.tics != -1)
-				{ // when actor tics reached 1, slow it down by multiply the ticks again (or back to where it was when bt off)
-					curActor.tics = (applySlow) ? curActor.tics * btMultiplier : curActor.tics / btMultiplier;
-				}
-			}
-		
-			// Slow sound pitch
-			float soundPitch = applySlow ? clamp(2.0 / btMultiplier, 0.3, 1.0) : 1.0;
-			for (int k = 0; k < 8; k++)
-				curActor.A_SoundPitch(k, soundPitch);
-			
-			// save data for next tic when bt on
-			btItemData.actorInfo.lastState = curActor.CurState;
-			btItemData.actorInfo.lastTics = curActor.tics;
-			btItemData.actorInfo.lastVel = curActor.vel;
-
-			if (!applySlow) btItemData.actorInfo = NULL; // removes actorInfo, so that when reactivating bullet time, it is slowed down again
+			BtActorInfo actorInfo = new("BtActorInfo");
+			actorInfo.actorRef = curActor;
+			btItemData.actorInfo = actorInfo;
 		}
+
+		if (createNewActorInfo || !applySlow)
+		{ // apply first slowdown (if new to the info list) or go back to its original speed (if bt ended)
+			curActor.vel = applySlow ? curActor.vel / btMultiplier : curActor.vel * btMultiplier;
+			if (curActor.tics != -1)
+				curActor.tics = applySlow ? curActor.tics * btMultiplier : curActor.tics / btMultiplier;
+		}
+		else if (!createNewActorInfo && applySlow)
+		{ // when bt is on, slow down velocity constantly
+			double velZZ = abs(curActor.vel.z - btItemData.actorInfo.lastVel.z);
+			bool newZ = velZZ > 1.1 && abs(curActor.vel.z) < 1000; // last
+
+			double velX = btItemData.actorInfo.lastVel.x != curActor.vel.x  && curActor.vel.x != 0
+						? btItemData.actorInfo.lastVel.x + (curActor.vel.x - btItemData.actorInfo.lastVel.x) / btMultiplier
+						: curActor.vel.x;
+			double velY = btItemData.actorInfo.lastVel.y != curActor.vel.y && curActor.vel.y != 0
+						? btItemData.actorInfo.lastVel.y + (curActor.vel.y - btItemData.actorInfo.lastVel.y) / btMultiplier
+						: curActor.vel.y;
+			double velZ = btItemData.actorInfo.lastVel.z != curActor.vel.z && (curActor.vel.z != 0 || (curActor.floorz != curActor.pos.z && curActor.ceilingz != curActor.pos.z + curActor.height))
+						? btItemData.actorInfo.lastVel.z + (curActor.vel.z - btItemData.actorInfo.lastVel.z) / (btMultiplier * btMultiplier)
+						: curActor.vel.z;
+
+			if (newZ) velZ *= btMultiplier;
+			if (velZZ > 1000) velZ = 0;
+			curActor.vel = (velX, velY, velZ);
+
+			if (btItemData.actorInfo.lastTics == 1 &&
+				btItemData.actorInfo.lastState != curActor.CurState &&
+				curActor.tics != -1)
+			{ // when actor tics reached 1, slow it down by multiply the ticks again (or back to where it was when bt off)
+				curActor.tics = (applySlow) ? curActor.tics * btMultiplier : curActor.tics / btMultiplier;
+			}
+		}
+	
+		// Slow sound pitch
+		float soundPitch = applySlow ? clamp(2.0 / btMultiplier, 0.3, 1.0) : 1.0;
+		// (this if check is mostly for optimization purposes, +40fps nice)
+		if (curActor.isActorPlayingSound(0)) // checks if actor is making any sound and change it's pitch accordingly to all channels
+		{
+			for (int k = 0; k < 8; k++)
+			{
+				curActor.A_SoundPitch(k, soundPitch);
+			} 
+		}
+		
+		// save data for next tic when bt on
+		btItemData.actorInfo.lastState = curActor.CurState;
+		btItemData.actorInfo.lastTics = curActor.tics;
+		btItemData.actorInfo.lastVel = curActor.vel;
+
+		if (!applySlow) btItemData.actorInfo = NULL; // removes actorInfo, so that when reactivating bullet time, it is slowed down again
 	}
 
 	void slowPlayers(bool applySlow)
