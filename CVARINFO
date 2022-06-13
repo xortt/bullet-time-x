@@ -1,3 +1,4 @@
 server int bt_multiplier = 4;
 server int bt_heartbeat = 1;
+server int bt_unlimited = 0;
 server int bt_max_duration = 15;

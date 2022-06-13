@@ -16,6 +16,9 @@ OptionMenu "BtOptions"
     StaticText " "
 
     StaticText " "
+    Option "Enable Unlimited Bullet Time", "bt_unlimited", "OnOff"    
+    
+    StaticText " "
     Slider "Bullet Time Max Duration", "bt_max_duration", 15, 120, 15
     StaticText "                         Default is 15 seconds"
     StaticText " "

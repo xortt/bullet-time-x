@@ -17,11 +17,14 @@ class BulletTime : EventHandler
 
 	// main bullet time variables
 	bool btActive;
-	bool btHeartBeat;
-	int btMultiplier;
 	int btTic;
-	int btMaxDurationMultiplier;
 	int btMaxDurationCounter;
+
+	// cvar options
+	bool btHeartBeat;
+	bool btIsUnlimited;
+	int btMultiplier;
+	int btMaxDurationMultiplier;
 
 	// post tick bt controller
 	PostTickDummyController postTickController;
@@ -69,11 +72,12 @@ class BulletTime : EventHandler
 		CVar cv;
 		btMultiplier = cv.GetCVar("bt_multiplier").GetInt();
 		btHeartBeat = cv.GetCVar("bt_heartbeat").GetInt();
+		btIsUnlimited = cv.GetCVar("bt_unlimited").GetInt();
 		int btMaxDuration = clamp(cv.GetCVar("bt_max_duration").GetInt(), 15, 120);
-		btMaxDurationMultiplier = round(btMaxDuration / 15);
-		btMaxDurationCounter = 1;
 
 		// initialize variables
+		btMaxDurationMultiplier = round(btMaxDuration / 15);
+		btMaxDurationCounter = 1;
 		btEffectCounter = 0;
 		btEffectInvulnerability = false;
 		btOneSecondTick = 0;
@@ -126,8 +130,9 @@ class BulletTime : EventHandler
 			btMaxDurationCounter = btMaxDurationCounter >= btMaxDurationMultiplier ? 1 : btMaxDurationCounter + 1;
 
 			// disables bullet time when ran out of adrenaline / player hit floor or step onto another actor
-			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1);
-			if ((!canUseBulletTime || btPlayerActivator.health < 1) && (btPlayerActivator.floorz == btPlayerActivator.pos.z || BtHelperFunctions.checkPlayerIsSteppingActor(btPlayerActivator)))
+			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1) || btIsUnlimited;
+			bool steppingFloorOrActor = (btPlayerActivator.floorz == btPlayerActivator.pos.z || BtHelperFunctions.checkPlayerIsSteppingActor(btPlayerActivator));
+			if ((!canUseBulletTime && steppingFloorOrActor) || btPlayerActivator.health < 1)
 			{
 				doSlowTime(false, btPlayerActivator);
 				return;
@@ -160,69 +165,70 @@ class BulletTime : EventHandler
         Shader.SetUniform1f(players[consoleplayer], "btshader", "btEffectCounter", btEffectCounter);
         Shader.SetUniform1i(players[consoleplayer], "btshader", "btEffectInvulnerability", btEffectInvulnerability);
 		
-		bool hasBerserker = p.mo.CountInv("BtBerserkerCounter") > 0;
-		double bulletTimeAmount = p.mo.CountInv("BtAdrenaline");
-		double bulletTimeBerserkAmount = p.mo.CountInv("BtBerserkerCounter") / 2;
+		// shader calculations for drawing sand clocks
+		if (!btIsUnlimited)
+		{
+			bool hasBerserker = p.mo.CountInv("BtBerserkerCounter") > 0;
+			double bulletTimeAmount = p.mo.CountInv("BtAdrenaline");
+			double bulletTimeBerserkAmount = p.mo.CountInv("BtBerserkerCounter") / 2;
 
-		int screenWidth = Screen.GetWidth();
-		int screenHeight = Screen.GetHeight();
+			int screenWidth = Screen.GetWidth();
+			int screenHeight = Screen.GetHeight();
 
-		double bulletTimeTotal = 525;
+			double bulletTimeTotal = 525;
 
-		// uiscale option
-		CVar cv;
-		int uiscale = clamp(cv.GetCVar("uiscale").GetInt() - 1, 1, 6);
+			// uiscale option
+			CVar cv;
+			int uiscale = clamp(cv.GetCVar("uiscale").GetInt() - 1, 1, 6);
 
-		// sand clock dimensiones
-		int width = 186 * uiscale;
-		double height = 561 * uiscale;
+			// sand clock dimensiones
+			int width = 186 * uiscale;
+			double height = 561 * uiscale;
 
-		// draw sizes
-		int destWidth = width / 5;
-		int destHeight = height / 5;
+			// draw sizes
+			int destWidth = width / 5;
+			int destHeight = height / 5;
 
-		int offsetHeight = 50;
-		int offsetWidth = screenWidth - destWidth - 50;
+			int offsetHeight = 50;
+			int offsetWidth = screenWidth - destWidth - 50;
 
-		// calculates image height based on bullet time counter
-		double imageHeight = (height / uiscale) - ((height / uiscale) * (bulletTimeAmount / bulletTimeTotal));
-		double berserkImageHeight = (height / uiscale) - ((height / uiscale) * (bulletTimeBerserkAmount / bulletTimeTotal));
+			// calculates image height based on bullet time counter
+			double imageHeight = (height / uiscale) - ((height / uiscale) * (bulletTimeAmount / bulletTimeTotal));
+			double berserkImageHeight = (height / uiscale) - ((height / uiscale) * (bulletTimeBerserkAmount / bulletTimeTotal));
 
-		Screen.DrawTexture(
-			btSandClock, 
-			false, 
-			offsetWidth, 
-			offsetHeight, 
-			DTA_Alpha, 0.25, 
-			DTA_DestWidth, destWidth, 
-			DTA_DestHeight, destHeight
-		); // transparent background sand clock
-		Screen.DrawTexture(
-			btSandClock, 
-			false, 
-			offsetWidth, 
-			offsetHeight, 
-			DTA_SrcY, imageHeight, 
-			DTA_DestWidth, destWidth, 
-			DTA_DestHeight, destHeight, 
-			DTA_TopOffsetF, -imageHeight
-		); // bullet time sand clock
-
-		if (hasBerserker) 
 			Screen.DrawTexture(
 				btSandClock, 
 				false, 
 				offsetWidth, 
 				offsetHeight, 
-				DTA_SrcY, berserkImageHeight, 
-				DTA_Color, 0xFFcf1515, 
+				DTA_Alpha, 0.25, 
+				DTA_DestWidth, destWidth, 
+				DTA_DestHeight, destHeight
+			); // transparent background sand clock
+			Screen.DrawTexture(
+				btSandClock, 
+				false, 
+				offsetWidth, 
+				offsetHeight, 
+				DTA_SrcY, imageHeight, 
 				DTA_DestWidth, destWidth, 
 				DTA_DestHeight, destHeight, 
-				DTA_TopOffsetF, -berserkImageHeight
-			); // berserker overlay red clock
+				DTA_TopOffsetF, -imageHeight
+			); // bullet time sand clock
 
-
-
+			if (hasBerserker) 
+				Screen.DrawTexture(
+					btSandClock, 
+					false, 
+					offsetWidth, 
+					offsetHeight, 
+					DTA_SrcY, berserkImageHeight, 
+					DTA_Color, 0xFFcf1515, 
+					DTA_DestWidth, destWidth, 
+					DTA_DestHeight, destHeight, 
+					DTA_TopOffsetF, -berserkImageHeight
+				); // berserker overlay red clock
+		}
 	}
 
 	/**
@@ -231,7 +237,7 @@ class BulletTime : EventHandler
 	*/
 	void doSlowTime(bool applySlow, PlayerPawn player)
 	{
-		bool hasBulletTimeCounter = (player.CheckInventory("BtBerserkerCounter", 1)) || player.CheckInventory("BtAdrenaline", 1);
+		bool hasBulletTimeCounter = (player.CheckInventory("BtBerserkerCounter", 1)) || player.CheckInventory("BtAdrenaline", 1) || btIsUnlimited;
 
 		if (applySlow && (hasBulletTimeCounter || player.pos.z != player.floorz) && player.health > 0)
 		{
@@ -517,7 +523,7 @@ class BulletTime : EventHandler
 		else if (!createNewActorInfo && applySlow)
 		{ // when bt is on, slow down velocity constantly
 			double velZZ = abs(curActor.vel.z - btItemData.actorInfo.lastVel.z);
-			bool newZ = velZZ > 1.1 && abs(curActor.vel.z) < 1000; // last
+			bool newZ = velZZ > 1.1 && abs(curActor.vel.z) < 32766; // last
 
 			double velX = btItemData.actorInfo.lastVel.x != curActor.vel.x  && curActor.vel.x != 0
 						? btItemData.actorInfo.lastVel.x + (curActor.vel.x - btItemData.actorInfo.lastVel.x) / btMultiplier
@@ -530,7 +536,7 @@ class BulletTime : EventHandler
 						: curActor.vel.z;
 
 			if (newZ) velZ *= btMultiplier;
-			if (velZZ > 1000) velZ = 0;
+			if (velZZ > 32766) velZ = 0;
 			curActor.vel = (velX, velY, velZ);
 
 			if (btItemData.actorInfo.lastTics == 1 &&
