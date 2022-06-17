@@ -17,14 +17,28 @@ class BulletTime : EventHandler
 
 	// main bullet time variables
 	bool btActive;
+	bool btMidAirActive;
 	int btTic;
 	int btMaxDurationCounter;
 
-	// cvar options
-	bool btHeartBeat;
-	bool btIsUnlimited;
 	int btMultiplier;
-	int btMaxDurationMultiplier;
+	int btPlayerMovementMultiplier;
+	int btPlayerWeaponSpeedMultiplier;
+
+	// cvar options (only changed when they are initialized)
+	int cvBtMultiplier;
+	int cvBtPlayerMovementMultiplier;
+	int cvBtPlayerWeaponSpeedMultiplier;
+
+	bool cvBtEnableMidAir;
+	int cvBtMidAirMinDistance;
+	int cvBtMidAirMultiplier;
+	int cvBtMidAirPlayerMovementMultiplier;
+	int cvBtMidAirPlayerWeaponSpeedMultiplier;
+
+	int cvBtMaxDurationMultiplier;
+	bool cvBtIsUnlimited;
+	bool cvBtHeartBeat;
 
 	// post tick bt controller
 	PostTickDummyController postTickController;
@@ -70,14 +84,29 @@ class BulletTime : EventHandler
 	{
 		// get cvars
 		CVar cv;
-		btMultiplier = cv.GetCVar("bt_multiplier").GetInt();
-		btHeartBeat = cv.GetCVar("bt_heartbeat").GetInt();
-		btIsUnlimited = cv.GetCVar("bt_unlimited").GetInt();
-		int btMaxDuration = clamp(cv.GetCVar("bt_max_duration").GetInt(), 15, 120);
+		cvBtMultiplier = cv.GetCVar("bt_multiplier").GetInt();
+		cvBtPlayerMovementMultiplier = cv.GetCVar("bt_player_movement_multiplier").GetInt();
+		cvBtPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt();
+
+		cvBtEnableMidAir = cv.GetCVar("bt_enable_midair").GetInt();
+		cvBtMidAirMinDistance = cv.GetCVar("bt_midair_min_distance").GetInt();
+		cvBtMidAirMultiplier = cv.GetCVar("bt_midair_multiplier").GetInt();
+		cvBtMidAirPlayerMovementMultiplier = cv.GetCVar("bt_midair_player_movement_multiplier").GetInt();
+		cvBtMidAirPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_midair_player_weapon_speed_multiplier").GetInt();
+
+		cvBtHeartBeat = cv.GetCVar("bt_heartbeat").GetInt();
+		cvBtIsUnlimited = cv.GetCVar("bt_unlimited").GetInt();
+		int cvBtMaxDuration = clamp(cv.GetCVar("bt_max_duration").GetInt(), 15, 120);
 
 		// initialize variables
-		btMaxDurationMultiplier = round(btMaxDuration / 15);
+		btMultiplier = cvBtMultiplier;
+		btPlayerMovementMultiplier = cvBtPlayerMovementMultiplier;
+		btPlayerWeaponSpeedMultiplier = cvBtPlayerWeaponSpeedMultiplier;
+
+		cvBtMaxDurationMultiplier = round(cvBtMaxDuration / 15);
 		btMaxDurationCounter = 1;
+
+		// render variables
 		btEffectCounter = 0;
 		btEffectInvulnerability = false;
 		btOneSecondTick = 0;
@@ -108,7 +137,23 @@ class BulletTime : EventHandler
 		bool doUpdateMonsterInfoList = btOneSecondTick == 35;
 		if (btActive)
 		{
+			if (cvBtEnableMidAir && !btMidAirActive && BtHelperFunctions.isPlayerMidAir(btPlayerActivator, cvBtMidAirMinDistance))
+			{
+				btMidAirActive = true;
+				if (btTic > 0) slowGame(false, false); // resets all speeds and tics to normal state
+				applyMidAirMultipliers(true);
+			}
+			else if (btMidAirActive && BtHelperFunctions.isPlayerSteppingFloor(btPlayerActivator))
+			{
+				btMidAirActive = false;
+				slowGame(false, false); // resets all speeds and tics to normal state
+				applyMidAirMultipliers(false);
+			}
+
 			slowGame(true, doUpdateMonsterInfoList);
+
+			// btTic will be 0 when bullet time just started, but always > 1 afterwards
+			btTic = btTic > (btMultiplier + 1) ? 1 : btTic + 1;
 		}
 		else if (doUpdateMonsterInfoList)
 		{
@@ -123,14 +168,14 @@ class BulletTime : EventHandler
 		if (btPlayerActivator)
 		{
 			// hack to allow bullet time to last more if set in cvar bt_max_duration
-			if (btMaxDurationCounter == btMaxDurationMultiplier)
+			if (btMaxDurationCounter == cvBtMaxDurationMultiplier)
 			{
 				btPlayerActivator.TakeInventory("BtAdrenaline", 1);
 			}
-			btMaxDurationCounter = btMaxDurationCounter >= btMaxDurationMultiplier ? 1 : btMaxDurationCounter + 1;
+			btMaxDurationCounter = btMaxDurationCounter >= cvBtMaxDurationMultiplier ? 1 : btMaxDurationCounter + 1;
 
 			// disables bullet time when ran out of adrenaline / player hit floor or step onto another actor
-			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1) || btIsUnlimited;
+			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1) || cvBtIsUnlimited;
 			bool steppingFloorOrActor = (btPlayerActivator.floorz == btPlayerActivator.pos.z || BtHelperFunctions.checkPlayerIsSteppingActor(btPlayerActivator));
 			if ((!canUseBulletTime && steppingFloorOrActor) || btPlayerActivator.health < 1)
 			{
@@ -149,8 +194,6 @@ class BulletTime : EventHandler
 
 		handlePlayerAdrenaline();
 		handlePlayerAdrenalineKills();
-
-		btTic = btTic > btMultiplier ? 0 : btTic + 1;
 	}
 
 	/**
@@ -166,7 +209,7 @@ class BulletTime : EventHandler
         Shader.SetUniform1i(players[consoleplayer], "btshader", "btEffectInvulnerability", btEffectInvulnerability);
 		
 		// shader calculations for drawing sand clocks
-		if (!btIsUnlimited)
+		if (!cvBtIsUnlimited)
 		{
 			bool hasBerserker = p.mo.CountInv("BtBerserkerCounter") > 0;
 			double bulletTimeAmount = p.mo.CountInv("BtAdrenaline");
@@ -231,22 +274,36 @@ class BulletTime : EventHandler
 		}
 	}
 
+	void applyMidAirMultipliers(bool isMidAir)
+	{
+		btMultiplier = isMidAir ? cvBtMidAirMultiplier : cvBtMultiplier;
+		btPlayerMovementMultiplier = isMidAir ? cvBtMidAirPlayerMovementMultiplier : cvBtPlayerMovementMultiplier;
+		btPlayerWeaponSpeedMultiplier = isMidAir ? cvBtMidAirPlayerWeaponSpeedMultiplier : cvBtPlayerWeaponSpeedMultiplier;
+
+		postTickController.btMultiplier = btMultiplier;
+		postTickController.btPlayerMovementMultiplier = btPlayerMovementMultiplier;
+		postTickController.btPlayerWeaponSpeedMultiplier = btPlayerWeaponSpeedMultiplier;
+	}
+
 	/**
 	* Checks that player can actually start bullet time and starts it if apply slow is true.
 	* When apply slow is false, bullet time stops and resets all actors / sectors velocities, tics.
 	*/
 	void doSlowTime(bool applySlow, PlayerPawn player)
 	{
-		bool hasBulletTimeCounter = (player.CheckInventory("BtBerserkerCounter", 1)) || player.CheckInventory("BtAdrenaline", 1) || btIsUnlimited;
+		bool hasBulletTimeCounter = (player.CheckInventory("BtBerserkerCounter", 1)) || player.CheckInventory("BtAdrenaline", 1) || cvBtIsUnlimited;
 
+		// starts bullet time
 		if (applySlow && (hasBulletTimeCounter || player.pos.z != player.floorz) && player.health > 0)
 		{
 			btTic = 0;
 			player.A_StartSound("SLWSTART",  0, CHANF_LOCAL, 1.0, ATTN_NONE, 1.0);
-			if (btHeartBeat) player.A_StartSound("SLWLOOP",  16, CHANF_LOOP, 1.0, ATTN_NONE, 1.0);
+			if (cvBtHeartBeat) player.A_StartSound("SLWLOOP",  16, CHANF_LOOP, 1.0, ATTN_NONE, 1.0);
 
 			postTickController = PostTickDummyController(player.Spawn("PostTickDummyController"));
 			postTickController.btMultiplier = btMultiplier;
+			postTickController.btPlayerMovementMultiplier = btPlayerMovementMultiplier;
+			postTickController.btPlayerWeaponSpeedMultiplier = btPlayerWeaponSpeedMultiplier;
 			postTickController.applySlow = true;
 			
 			btPlayerActivator = player;
@@ -254,18 +311,21 @@ class BulletTime : EventHandler
 			console.printf("Bullet Time!");
 		} 
 		else if (btActive)
-		{
+		{ // stops bullet time
+			btTic = 0;
 			slowGame(false, false);
 
 			if (player) 
 			{
 				player.A_StartSound("SLWSTOP",  0, CHANF_LOCAL, 1.0, ATTN_NONE, 1.0);
-				if (btHeartBeat) player.A_StopSound(16);
+				if (cvBtHeartBeat) player.A_StopSound(16);
 			}
 
 			postTickController.applySlow = false;
 			btPlayerActivator = null;
 			btActive = false;
+			btMidAirActive = false;
+			applyMidAirMultipliers(false);
 		}
 	}
 
@@ -601,9 +661,9 @@ class BulletTime : EventHandler
 			// apply slow when new or restore speed when bullet time ends
 			if (createNewPlayerInfo || !applySlow)
 			{
-				doomPlayer.speed = applySlow ? doomPlayer.speed / btMultiplier : btItemData.actorInfo.lastSpeed * btMultiplier;
-				doomPlayer.vel = applySlow ? doomPlayer.vel / btMultiplier : btItemData.actorInfo.lastVel * btMultiplier;
-				doomPlayer.viewBob = applySlow ? doomPlayer.viewBob / btMultiplier : doomPlayer.viewBob * btMultiplier;
+				doomPlayer.speed = applySlow ? doomPlayer.speed / btPlayerMovementMultiplier : btItemData.actorInfo.lastSpeed * btPlayerMovementMultiplier;
+				doomPlayer.vel = applySlow ? doomPlayer.vel / btPlayerMovementMultiplier : btItemData.actorInfo.lastVel * btPlayerMovementMultiplier;
+				doomPlayer.viewBob = applySlow ? doomPlayer.viewBob / btPlayerMovementMultiplier : doomPlayer.viewBob * btPlayerMovementMultiplier;
 			}
 			else if (!createNewPlayerInfo && applySlow)
 			{ // check for change in movement speed constantly
@@ -617,7 +677,7 @@ class BulletTime : EventHandler
 				if (velXY > 1.1 && (btItemData.actorInfo.externalForce == 0 || btItemData.actorInfo.externalForce < velXY))
 					btItemData.actorInfo.externalForce = velXY;
 				else if (velXY > 1.1 && btItemData.actorInfo.externalForce > 1.1)
-					btItemData.actorInfo.externalForce += (velXY / btMultiplier);
+					btItemData.actorInfo.externalForce += (velXY / btPlayerMovementMultiplier);
 				else if (btItemData.actorInfo.externalForce < 1.1)
 					btItemData.actorInfo.externalForce = 0;
 				else if (btItemData.actorInfo.externalForce > 1.1)
@@ -630,22 +690,22 @@ class BulletTime : EventHandler
 				bool didJump = (btItemData.actorInfo.playerJumpTic == 2 && doomPlayer.vel.z > btItemData.actorInfo.lastVel.z) || (btItemData.actorInfo.playerJumpTic == 1 && doomPlayer.vel.z > 0 && doomPlayer.vel.z > btItemData.actorInfo.lastVel.z);
 				if (didJump || newZ)
 				{
-					btItemData.actorInfo.lastVel.z /= ((btMultiplier * btMultiplier) / 2);
+					btItemData.actorInfo.lastVel.z /= ((btPlayerMovementMultiplier * btPlayerMovementMultiplier) / 2);
 				} 
 
 				double velX = btItemData.actorInfo.lastVel.x != doomPlayer.vel.x && btItemData.actorInfo.externalForce > 1.1 && doomPlayer.vel.x != 0
-							? btItemData.actorInfo.lastVel.x + (doomPlayer.vel.x - btItemData.actorInfo.lastVel.x) / btMultiplier
+							? btItemData.actorInfo.lastVel.x + (doomPlayer.vel.x - btItemData.actorInfo.lastVel.x) / btPlayerMovementMultiplier
 							: doomPlayer.vel.x;
 				double velY = btItemData.actorInfo.lastVel.y != doomPlayer.vel.y && btItemData.actorInfo.externalForce > 1.1 && doomPlayer.vel.y != 0
-							? btItemData.actorInfo.lastVel.y + (doomPlayer.vel.y - btItemData.actorInfo.lastVel.y) / btMultiplier
+							? btItemData.actorInfo.lastVel.y + (doomPlayer.vel.y - btItemData.actorInfo.lastVel.y) / btPlayerMovementMultiplier
 							: doomPlayer.vel.y;
 				double velZ = btItemData.actorInfo.lastVel.z != doomPlayer.vel.z && (doomPlayer.vel.z != 0 || (doomPlayer.floorz != doomPlayer.pos.z && doomPlayer.ceilingz != doomPlayer.pos.z + doomPlayer.height))
-							? btItemData.actorInfo.lastVel.z + (doomPlayer.vel.z - btItemData.actorInfo.lastVel.z) / (btMultiplier * btMultiplier)
+							? btItemData.actorInfo.lastVel.z + (doomPlayer.vel.z - btItemData.actorInfo.lastVel.z) / (btPlayerMovementMultiplier * btPlayerMovementMultiplier)
 							: doomPlayer.vel.z;
 
 				if ((newZ && btItemData.actorInfo.playerJumpTic == 0) || didJump) 
 				{
-					velZ *= btMultiplier;
+					velZ *= btPlayerMovementMultiplier;
 				}
 
 				// hack: sets velZ to 0 when stepping other actors, but allows velZ when jumping, also constraints velZ below 1000 if a glitch happens to prevent int overflow
@@ -658,7 +718,7 @@ class BulletTime : EventHandler
 
 				// slows down speed as well, this is constant velocity
 				double newSpeed = btItemData.actorInfo.lastSpeed != doomPlayer.speed
-								? doomPlayer.speed / btMultiplier
+								? doomPlayer.speed / btPlayerMovementMultiplier
 								: doomPlayer.speed;
 
 				doomPlayer.speed = newSpeed;
@@ -723,7 +783,7 @@ class BulletTime : EventHandler
 										  ? true : false;
 					if (slowTicPlayer || !applySlow)
 					{
-						playerWp.tics = (applySlow) ? playerWp.tics * btMultiplier : playerWp.tics / btMultiplier;
+						playerWp.tics = (applySlow) ? playerWp.tics * btPlayerWeaponSpeedMultiplier : playerWp.tics / btPlayerWeaponSpeedMultiplier;
 						if (playerWp.tics < 1) playerWp.tics = 1;
 					}
 					btItemData.actorInfo.lastWeaponState[j] = playerWp.CurState;
@@ -732,7 +792,7 @@ class BulletTime : EventHandler
 			}
 
 			// slow or restore all player sounds
-			float soundPitch = applySlow ? clamp(2.0 / btMultiplier, 0.3, 1.0) : 1.0;
+			float soundPitch = applySlow ? clamp(2.0 / btPlayerWeaponSpeedMultiplier, 0.3, 1.0) : 1.0;
 			for (int k = 0; k < 8; k++)
 				doomPlayer.A_SoundPitch(k, soundPitch);
 			
@@ -773,7 +833,7 @@ class BulletTime : EventHandler
 				lightThinker.changeStatNum(Thinker.STAT_LIGHT);
 			}
 		}
-		else if (btTic == 0)
+		else if (btTic == 1)
 		{
 			Thinker lightThinker;
 			ThinkerIterator testingList = ThinkerIterator.Create("Lighting", Thinker.STAT_LIGHT);
@@ -809,7 +869,7 @@ class BulletTime : EventHandler
 				}	
 			}
 		}
-		else if (btTic == 0)
+		else if (btTic == 1)
 		{
 			Thinker scrollerThinker;
 			ThinkerIterator thinkerList = ThinkerIterator.Create("Object", Thinker.STAT_SCROLLER);

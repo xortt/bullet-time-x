@@ -8,7 +8,10 @@ class PostTickDummyController : Actor
 {
 	Array<BtSectorInfo> sectorInfoList;
 	bool applySlow;
+
 	int btMultiplier;
+	int btPlayerMovementMultiplier;
+	int btPlayerWeaponSpeedMultiplier;
 
 	override void beginPlay()
 	{
@@ -174,7 +177,7 @@ class PostTickDummyController : Actor
 			}
 
 			// Slow sound pitch
-			float soundPitch = applySlow ? clamp(2.0 / btMultiplier, 0.3, 1.0) : 1.0;
+			float soundPitch = applySlow ? clamp(2.0 / btPlayerWeaponSpeedMultiplier, 0.3, 1.0) : 1.0;
 			for (int k = 0; k < 8; k++)
 				doomPlayer.A_SoundPitch(k, soundPitch);
 		
@@ -191,7 +194,7 @@ class PostTickDummyController : Actor
 				if (btItemData.actorInfo.newChangedSpeed == doomPlayer.speed)
 				{
 					double newSpeed = btItemData.actorInfo.lastSpeed != doomPlayer.speed
-									? doomPlayer.speed / btMultiplier
+									? doomPlayer.speed / btPlayerMovementMultiplier
 									: doomPlayer.speed;
 					doomPlayer.speed = newSpeed;
 				}

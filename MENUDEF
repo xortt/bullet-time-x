@@ -9,11 +9,6 @@ OptionMenu "BtOptions"
 
     StaticText " "
     StaticText "Changes will take effect on next level"
-    
-    StaticText " "
-    Slider "Bullet Time Multiplier", "bt_multiplier", 2, 10, 1
-    StaticText "                Default is 4"
-    StaticText " "
 
     StaticText " "
     Option "Enable Unlimited Bullet Time", "bt_unlimited", "OnOff"    
@@ -21,6 +16,46 @@ OptionMenu "BtOptions"
     StaticText " "
     Slider "Bullet Time Max Duration", "bt_max_duration", 15, 120, 15
     StaticText "                         Default is 15 seconds"
+    StaticText " "
+    
+    
+    StaticText " "
+    Slider "Bullet Time World Multiplier", "bt_multiplier", 2, 20, 1
+    StaticText "                Default is 4"
+    StaticText " "
+
+    StaticText " "
+    Slider "Bullet Time Player Movement Multiplier", "bt_player_movement_multiplier", 2, 20, 1
+    StaticText "                Default is 4"
+    StaticText " "
+
+    StaticText " "
+    Slider "Bullet Time Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 2, 20, 1
+    StaticText "                Default is 4"
+    StaticText " "
+
+
+    StaticText " "
+    Option "Enable Mid Air Bullet Time Multiplier", "bt_enable_midair", "OnOff"    
+
+    StaticText " "
+    Slider "Mid Air minimum distance to floor", "bt_midair_min_distance", 8, 128, 8
+    StaticText "                Default is 8"
+    StaticText " "
+
+    StaticText " "
+    Slider "Mid Air World Multiplier", "bt_midair_multiplier", 2, 20, 1
+    StaticText "                Default is 12"
+    StaticText " "
+
+    StaticText " "
+    Slider "Mid Air Player Movement Multiplier", "bt_midair_player_movement_multiplier", 2, 20, 1
+    StaticText "                Default is 12"
+    StaticText " "
+
+    StaticText " "
+    Slider "Mid Air Player Weapons Multiplier", "bt_midair_player_weapon_speed_multiplier", 2, 20, 1
+    StaticText "                Default is 7"
     StaticText " "
 
     StaticText " "

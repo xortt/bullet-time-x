@@ -48,4 +48,15 @@ class BtHelperFunctions
         }
         return true;
     }
+
+    static bool isPlayerMidAir(PlayerPawn curPlayer, int distance)
+    {
+        int diff = abs(curPlayer.pos.z - curPlayer.floorz);
+        return diff > distance;
+    }
+
+    static bool isPlayerSteppingFloor(PlayerPawn curPlayer)
+    {
+        return curPlayer.floorz == curPlayer.pos.z;
+    }
 }
