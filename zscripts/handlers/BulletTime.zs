@@ -681,7 +681,7 @@ class BulletTime : EventHandler
 			double velY = btItemData.actorInfo.lastVel.y != curActor.vel.y && curActor.vel.y != 0
 						? btItemData.actorInfo.lastVel.y + (curActor.vel.y - btItemData.actorInfo.lastVel.y) / btMultiplier
 						: curActor.vel.y;
-			double velZ = btItemData.actorInfo.lastVel.z != curActor.vel.z && (curActor.vel.z != 0 || (curActor.floorz != curActor.pos.z && curActor.ceilingz != curActor.pos.z + curActor.height))
+			double velZ = btItemData.actorInfo.lastVel.z != curActor.vel.z && (curActor.vel.z != 0 || (curActor.floorz != curActor.pos.z && curActor.ceilingz != curActor.pos.z + curActor.height && velX != 0 && velY != 0))
 						? btItemData.actorInfo.lastVel.z + (curActor.vel.z - btItemData.actorInfo.lastVel.z) / (btMultiplier * btMultiplier)
 						: curActor.vel.z;
 
