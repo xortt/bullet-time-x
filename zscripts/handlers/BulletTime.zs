@@ -18,6 +18,7 @@ class BulletTime : EventHandler
 	// main bullet time variables
 	bool btActive;
 	bool btMidAirActive;
+	bool btBerserkActive;
 	int btTic;
 	int btMaxDurationCounter;
 
@@ -31,10 +32,17 @@ class BulletTime : EventHandler
 	int cvBtPlayerWeaponSpeedMultiplier;
 
 	bool cvBtEnableMidAir;
+	bool cvBtMidAirJumpOnly;
 	int cvBtMidAirMinDistance;
 	int cvBtMidAirMultiplier;
 	int cvBtMidAirPlayerMovementMultiplier;
 	int cvBtMidAirPlayerWeaponSpeedMultiplier;
+
+	bool cvBtEnableBerserkEffect;
+	int cvBtBerserkPlayerMovementMultiplier;
+	int cvBtBerserkPlayerWeaponSpeedMultiplier;
+	int cvBtBerserkMidAirPlayerMovementMultiplier;
+	int cvBtBerserkMidAirPlayerWeaponSpeedMultiplier;
 
 	int cvBtMaxDurationMultiplier;
 	bool cvBtIsUnlimited;
@@ -58,12 +66,15 @@ class BulletTime : EventHandler
 		[keys[2], keys[3]] = Bindings.GetKeysForCommand("+jump");
 		if (e.Name == "BtKeyDown")
 		{
+			// bullet time key
 			if ((keys[0] && keys[0] == e.Args[0]) || (keys[1] && keys[1] == e.Args[0]))
 			{
 				let player = PlayerPawn(players[e.player].mo);
 
 				doSlowTime(!btActive, player);
 			}
+
+			// jumping key
 			if ((keys[2] && keys[2] == e.Args[0]) || (keys[3] && keys[3] == e.Args[0]))
 			{
 				let player = PlayerPawn(players[e.player].mo);
@@ -75,6 +86,11 @@ class BulletTime : EventHandler
 				if (btItemData.actorInfo != NULL)
 				{
 					btItemData.actorInfo.playerJumpTic = 2;
+				}
+				if (btItemData.adrenalinePlayerInfo != NULL) // for mid air bullet time
+				{
+					btItemData.adrenalinePlayerInfo.playerJumpTic = 2;
+					btItemData.adrenalinePlayerInfo.playerJumped = true;
 				}
 			}
 		}
@@ -89,10 +105,17 @@ class BulletTime : EventHandler
 		cvBtPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt();
 
 		cvBtEnableMidAir = cv.GetCVar("bt_enable_midair").GetInt();
+		cvBtMidAirJumpOnly = cv.GetCVar("bt_enable_midair_jump_only").GetInt();
 		cvBtMidAirMinDistance = cv.GetCVar("bt_midair_min_distance").GetInt();
 		cvBtMidAirMultiplier = cv.GetCVar("bt_midair_multiplier").GetInt();
 		cvBtMidAirPlayerMovementMultiplier = cv.GetCVar("bt_midair_player_movement_multiplier").GetInt();
 		cvBtMidAirPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_midair_player_weapon_speed_multiplier").GetInt();
+
+		cvBtEnableBerserkEffect = cv.GetCVar("bt_enable_berserk_effect").GetInt();
+		cvBtBerserkPlayerMovementMultiplier = cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt();
+		cvBtBerserkPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt();
+		cvBtBerserkMidAirPlayerMovementMultiplier = cv.GetCVar("bt_berserk_midair_player_movement_multiplier").GetInt();
+		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt();
 
 		cvBtHeartBeat = cv.GetCVar("bt_heartbeat").GetInt();
 		cvBtIsUnlimited = cv.GetCVar("bt_unlimited").GetInt();
@@ -102,6 +125,9 @@ class BulletTime : EventHandler
 		btMultiplier = cvBtMultiplier;
 		btPlayerMovementMultiplier = cvBtPlayerMovementMultiplier;
 		btPlayerWeaponSpeedMultiplier = cvBtPlayerWeaponSpeedMultiplier;
+
+		btBerserkActive = false;
+		btMidAirActive = false;
 
 		cvBtMaxDurationMultiplier = round(cvBtMaxDuration / 15);
 		btMaxDurationCounter = 1;
@@ -135,21 +161,14 @@ class BulletTime : EventHandler
 	override void WorldTick()
 	{
 		bool doUpdateMonsterInfoList = btOneSecondTick == 35;
+		bool forceDoSlowGame = false;
+
+		handlePlayerAdrenaline(forceDoSlowGame);
+		handlePlayerAdrenalineKills();
+
 		if (btActive)
 		{
-			if (cvBtEnableMidAir && !btMidAirActive && BtHelperFunctions.isPlayerMidAir(btPlayerActivator, cvBtMidAirMinDistance))
-			{
-				btMidAirActive = true;
-				if (btTic > 0) slowGame(false, false); // resets all speeds and tics to normal state
-				applyMidAirMultipliers(true);
-			}
-			else if (btMidAirActive && BtHelperFunctions.isPlayerSteppingFloor(btPlayerActivator))
-			{
-				btMidAirActive = false;
-				slowGame(false, false); // resets all speeds and tics to normal state
-				applyMidAirMultipliers(false);
-			}
-
+			applyMultipliers(forceDoSlowGame);
 			slowGame(true, doUpdateMonsterInfoList);
 
 			// btTic will be 0 when bullet time just started, but always > 1 afterwards
@@ -191,9 +210,6 @@ class BulletTime : EventHandler
 			if (btEffectCounter > 0) btEffectCounter = -8; 
 			else if (btEffectCounter < 0) btEffectCounter += 1;
 		}
-
-		handlePlayerAdrenaline();
-		handlePlayerAdrenalineKills();
 	}
 
 	/**
@@ -274,11 +290,68 @@ class BulletTime : EventHandler
 		}
 	}
 
-	void applyMidAirMultipliers(bool isMidAir)
+	void applyMultipliers(bool forceDoSlowGame = false)
 	{
-		btMultiplier = isMidAir ? cvBtMidAirMultiplier : cvBtMultiplier;
-		btPlayerMovementMultiplier = isMidAir ? cvBtMidAirPlayerMovementMultiplier : cvBtPlayerMovementMultiplier;
-		btPlayerWeaponSpeedMultiplier = isMidAir ? cvBtMidAirPlayerWeaponSpeedMultiplier : cvBtPlayerWeaponSpeedMultiplier;
+		bool doSlowGame = forceDoSlowGame;
+
+		bool stopMidAir = btActive && btMidAirActive && cvBtEnableMidAir && BtHelperFunctions.isPlayerSteppingFloor(btPlayerActivator);
+		if (btMidAirActive && stopMidAir) 
+		{
+			btMidAirActive = false;
+			doSlowGame = true;
+		}
+
+		bool isMidAir = btActive && (btMidAirActive || (cvBtEnableMidAir && !btMidAirActive && BtHelperFunctions.isPlayerMidAir(btPlayerActivator, cvBtMidAirMinDistance)));
+		if (!btMidAirActive && isMidAir)
+		{
+			Inventory btInv = btPlayerActivator.FindInventory("BtItemData");
+			BtItemData btItemData = btInv == NULL
+					? NULL
+					: BtItemData(btInv);
+
+			if (btItemData != NULL && btItemData.adrenalinePlayerInfo != NULL && (!cvBtMidAirJumpOnly || btItemData.adrenalinePlayerInfo.playerJumped))
+			{
+				btMidAirActive = true;
+				doSlowGame = true;
+			}
+			else
+			{
+				// player didn't jumped, not enabling midair
+				isMidAir = false;
+			}
+		}
+
+		bool isBerserk = cvBtEnableBerserkEffect && btActive && btBerserkActive;
+
+		if ((cvBtEnableMidAir || cvBtEnableBerserkEffect) && doSlowGame && btTic > 0)
+		{
+			slowGame(false, false);
+		}
+
+		if (cvBtEnableMidAir && isMidAir && cvBtEnableBerserkEffect && isBerserk)
+		{
+			btMultiplier = cvBtMidAirMultiplier;
+			btPlayerMovementMultiplier = cvBtBerserkMidAirPlayerMovementMultiplier;
+			btPlayerWeaponSpeedMultiplier = cvBtBerserkMidAirPlayerWeaponSpeedMultiplier;
+		}
+		else if (cvBtEnableMidAir && isMidAir)
+		{
+			btMultiplier = cvBtMidAirMultiplier;
+			btPlayerMovementMultiplier = cvBtMidAirPlayerMovementMultiplier;
+			btPlayerWeaponSpeedMultiplier = cvBtMidAirPlayerWeaponSpeedMultiplier;
+		}
+		else if (cvBtEnableBerserkEffect && isBerserk)
+		{
+			btMultiplier = cvBtMultiplier;
+			btPlayerMovementMultiplier = cvBtBerserkPlayerMovementMultiplier;
+			btPlayerWeaponSpeedMultiplier = cvBtBerserkPlayerWeaponSpeedMultiplier; 
+		}
+		else
+		{
+			btMultiplier = cvBtMultiplier;
+			btPlayerMovementMultiplier = cvBtPlayerMovementMultiplier;
+			btPlayerWeaponSpeedMultiplier = cvBtPlayerWeaponSpeedMultiplier;
+		}
 
 		postTickController.btMultiplier = btMultiplier;
 		postTickController.btPlayerMovementMultiplier = btPlayerMovementMultiplier;
@@ -325,14 +398,14 @@ class BulletTime : EventHandler
 			btPlayerActivator = null;
 			btActive = false;
 			btMidAirActive = false;
-			applyMidAirMultipliers(false);
+			applyMultipliers();
 		}
 	}
 
 	/**
 	* Checks if player's health went up or down, and gives adrenaline accordingly
 	*/
-	void handlePlayerAdrenaline()
+	void handlePlayerAdrenaline(out bool forceDoSlowGame)
 	{
 		PlayerPawn doomPlayer;
 		ThinkerIterator playerList = ThinkerIterator.Create("PlayerPawn", Thinker.STAT_PLAYER);
@@ -398,6 +471,17 @@ class BulletTime : EventHandler
 								// forces player adrenaline to be at 100% when berserker counter effect is on (red screen)
 								doomPlayer.GiveInventory("BtAdrenaline", 1000);
 								doomPlayer.SetInventory("BtBerserkerCounter", berserkerMaxTicEffect - currentPowerUpTic);
+
+								if (cvBtEnableBerserkEffect)
+								{
+									bool oldBtBerserkActive = btBerserkActive;
+									btBerserkActive = (berserkerMaxTicEffect - currentPowerUpTic) > 0;
+
+									if (oldBtBerserkActive != btBerserkActive)
+									{
+										forceDoSlowGame = true;
+									}
+								}
 							}
 						}
 						else
@@ -417,6 +501,12 @@ class BulletTime : EventHandler
 			if (doomPlayer.health <= 0) { // when player is dead take its all berserker counter so that sand clock doesn't remain red
 				doomPlayer.SetInventory("BtBerserkerCounter", 0);
 			}
+
+			if (btItemData.adrenalinePlayerInfo.playerJumpTic == 0 && btItemData.adrenalinePlayerInfo.playerJumped && doomPlayer.pos.z == doomPlayer.floorz)
+			{
+				btItemData.adrenalinePlayerInfo.playerJumped = false;
+			}
+			else if (btItemData.adrenalinePlayerInfo.playerJumpTic > 0) btItemData.adrenalinePlayerInfo.playerJumpTic--;
 		}
 	}
 
@@ -608,7 +698,7 @@ class BulletTime : EventHandler
 		}
 	
 		// Slow sound pitch
-		float soundPitch = applySlow ? clamp(2.0 / btMultiplier, 0.3, 1.0) : 1.0;
+		float soundPitch = applySlow ? BtHelperFunctions.calculateSoundPitch(btMultiplier) : 1.0;
 		// (this if check is mostly for optimization purposes, +40fps nice)
 		if (curActor.isActorPlayingSound(0)) // checks if actor is making any sound and change it's pitch accordingly to all channels
 		{
@@ -792,7 +882,7 @@ class BulletTime : EventHandler
 			}
 
 			// slow or restore all player sounds
-			float soundPitch = applySlow ? clamp(2.0 / btPlayerWeaponSpeedMultiplier, 0.3, 1.0) : 1.0;
+			float soundPitch = applySlow ? BtHelperFunctions.calculateSoundPitch(btPlayerWeaponSpeedMultiplier) : 1.0;
 			for (int k = 0; k < 8; k++)
 				doomPlayer.A_SoundPitch(k, soundPitch);
 			

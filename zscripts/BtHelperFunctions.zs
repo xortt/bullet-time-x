@@ -5,7 +5,6 @@ class BtHelperFunctions
         // check if any actor is below player's radius to prevent glitching when calculating Z slowdown.
         BlockThingsIterator bti = BlockThingsIterator.Create(doomPlayer);
         Actor mo;
-        bool playerIsSteppingActor = false;
 
         while (bti.Next())
         {
@@ -26,15 +25,14 @@ class BtHelperFunctions
                 double y2 = rectTopPosR.y;
                 bool playerInRect = (x > x1 && x < x2 && y > y1 && y < y2);
 
-                playerIsSteppingActor = playerInRect && doomPlayer.pos.z == mo.pos.z + mo.height;
-                if (playerIsSteppingActor) 
+                if (playerInRect && doomPlayer.pos.z == mo.pos.z + mo.height) 
                 {
-                    break; // player is stepping a monster / blockable
+                    return true; // player is stepping a monster / blockable
                 }
             }
         }
 
-        return playerIsSteppingActor;
+        return false;
     }
 
     /* Goes through all players list verifying that given PlayerPawn is present in the list.
@@ -58,5 +56,12 @@ class BtHelperFunctions
     static bool isPlayerSteppingFloor(PlayerPawn curPlayer)
     {
         return curPlayer.floorz == curPlayer.pos.z;
+    }
+
+    static float calculateSoundPitch(int multiplier)
+    {
+        float newMultiplier = Sqrt(multiplier);
+        float newPitch = 1 / newMultiplier;
+        return clamp(newPitch, 0.3, 1.0);
     }
 }

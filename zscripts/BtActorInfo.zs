@@ -2,6 +2,7 @@ class BtActorInfo : Object
 {
 	bool isFloorMoving;
 	bool nextTicDelete;
+    bool playerJumped; // should reset to 0 when pos.z == floorz
 	double externalForce;
     double lastSpeed; // last speed, with applied slowdown
     double newChangedSpeed; // new speed with no slowdown

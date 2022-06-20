@@ -10,54 +10,64 @@ OptionMenu "BtOptions"
     StaticText " "
     StaticText "Changes will take effect on next level"
 
+    StaticText "Duration Configuration", 1
     StaticText " "
-    Option "Enable Unlimited Bullet Time", "bt_unlimited", "OnOff"    
-    
+    Option "Enable Unlimited Bullet Time", "bt_unlimited", "OnOff"
     StaticText " "
     Slider "Bullet Time Max Duration", "bt_max_duration", 15, 120, 15
     StaticText "                         Default is 15 seconds"
+
     StaticText " "
+    StaticText " "
+
+    StaticText "Default Multipliers", 1
+    StaticText " "
+    Slider "World Multiplier", "bt_multiplier", 2, 20, 1
+    StaticText "                Default is 4"
+    Slider "Player Movement Multiplier", "bt_player_movement_multiplier", 2, 20, 1
+    StaticText "                Default is 4"
+    Slider "Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 2, 20, 1
+    StaticText "                Default is 3"
     
-    
     StaticText " "
-    Slider "Bullet Time World Multiplier", "bt_multiplier", 2, 20, 1
-    StaticText "                Default is 4"
     StaticText " "
 
+    StaticText "Mid Air Multipliers", 1
     StaticText " "
-    Slider "Bullet Time Player Movement Multiplier", "bt_player_movement_multiplier", 2, 20, 1
-    StaticText "                Default is 4"
+    Option "Enable Mid Air Multipliers", "bt_enable_midair", "OnOff"
     StaticText " "
-
+    Option "Enable Mid Air only when jumping", "bt_enable_midair_jump_only", "OnOff"
     StaticText " "
-    Slider "Bullet Time Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 2, 20, 1
-    StaticText "                Default is 4"
-    StaticText " "
-
-
-    StaticText " "
-    Option "Enable Mid Air Bullet Time Multiplier", "bt_enable_midair", "OnOff"    
-
-    StaticText " "
-    Slider "Mid Air minimum distance to floor", "bt_midair_min_distance", 8, 128, 8
-    StaticText "                Default is 8"
-    StaticText " "
-
-    StaticText " "
-    Slider "Mid Air World Multiplier", "bt_midair_multiplier", 2, 20, 1
-    StaticText "                Default is 12"
-    StaticText " "
-
-    StaticText " "
-    Slider "Mid Air Player Movement Multiplier", "bt_midair_player_movement_multiplier", 2, 20, 1
-    StaticText "                Default is 12"
-    StaticText " "
-
-    StaticText " "
-    Slider "Mid Air Player Weapons Multiplier", "bt_midair_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Minimum distance to floor", "bt_midair_min_distance", 8, 128, 8
+    StaticText "                 Default is 16"
+    Slider "World Multiplier", "bt_midair_multiplier", 2, 20, 1
+    StaticText "                 Default is 12"
+    Slider "Player Movement Multiplier", "bt_midair_player_movement_multiplier", 2, 20, 1
+    StaticText "                 Default is 12"
+    Slider "Player Weapons Multiplier", "bt_midair_player_weapon_speed_multiplier", 2, 20, 1
     StaticText "                Default is 7"
+
+    StaticText " "
     StaticText " "
 
+    StaticText "Berserk Multipliers", 1
+    StaticText " "
+    Option "Enable Berserk Multipliers", "bt_enable_berserk_effect", "OnOff"
+    StaticText " "
+    Slider "Player Movement Multiplier", "bt_berserk_player_movement_multiplier", 2, 20, 1
+    StaticText "                Default is 2"
+    Slider "Player Weapons Multiplier", "bt_berserk_player_weapon_speed_multiplier", 2, 20, 1
+    StaticText "                Default is 2"
+    Slider "Berserk + Mid Air Player Movement Multiplier", "bt_berserk_midair_player_movement_multiplier", 2, 20, 1
+    StaticText "                 Default is 12"
+    Slider "Berkser + Mid Air Player Weapons Multiplier", "bt_berserk_midair_player_weapon_speed_multiplier", 2, 20, 1
+    StaticText "                Default is 5"
+
+
+    StaticText " "
+    StaticText " "
+
+    StaticText "Additional", 1
     StaticText " "
     Option "Enable Heartbeat Sound Effect", "bt_heartbeat", "OnOff"
 }

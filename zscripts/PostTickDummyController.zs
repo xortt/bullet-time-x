@@ -177,7 +177,7 @@ class PostTickDummyController : Actor
 			}
 
 			// Slow sound pitch
-			float soundPitch = applySlow ? clamp(2.0 / btPlayerWeaponSpeedMultiplier, 0.3, 1.0) : 1.0;
+			float soundPitch = applySlow ? BtHelperFunctions.calculateSoundPitch(btPlayerWeaponSpeedMultiplier) : 1.0;
 			for (int k = 0; k < 8; k++)
 				doomPlayer.A_SoundPitch(k, soundPitch);
 		

@@ -5,8 +5,8 @@
 */
 class BtItemData : Inventory 
 {
-	BtActorInfo actorInfo;
-	BtActorInfo adrenalinePlayerInfo;
+	BtActorInfo actorInfo; // actorInfo gets nulled when bullet time ends!
+	BtActorInfo adrenalinePlayerInfo; // this one does not
     
 	BtMonsterInfo monsterInfo;
 	// int btActorId; // when bullet time is on, actor id
