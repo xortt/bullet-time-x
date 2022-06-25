@@ -1,10 +1,10 @@
-// Resolution reduction
-// 4 = 1/4th screen resolution
-int resfactor = 1;
-int exposure = 1;
+//Resolution reduction
+//4 = 1/4th screen resolution
+float resfactor = 1.0;
+float exposure = 1.0;
 
 void main(){
-	// Uniforms from script
+	//Uniforms from script
 	float exp = abs(exposure);
 	float expcurve = 2.0 * ((150.0 - abs(exposure)) / 100.0);
 	float expositionValue = btEffectInvulnerability > 0 ? 1.05 : 1.2;
@@ -13,13 +13,13 @@ void main(){
 
 	exp = exp / expcurve;
 
-	// Limit resfactor
-	resfactor = max(16, 1);
+	//Limit resfactor
+	float resfactor = max(16.0, 1.0);
 
-	// Get pixels
+	//Get pixels
 	vec3 color = texture(InputTexture, TexCoord).rgb;
 
-	// When bullet time is active, apply brightness effect
+	//When bullet time is active, apply brightness effect
 	if (btEffectCounter > 0) 
 	{
 		float colorScale = btEffectCounter > 0 ? colorScaleValue : 1.0;
@@ -30,20 +30,20 @@ void main(){
 	} 
 	else if (btEffectCounter < 0) 
 	{
-		float colorScale = colorScaleValue + (brightnessOffMultiplier / -btEffectCounter); 
-		float customExp = expositionValue - (brightnessOffMultiplier / -btEffectCounter);
+		float colorScale = colorScaleValue + (brightnessOffMultiplier / float(-btEffectCounter));
+		float customExp = expositionValue - (brightnessOffMultiplier / float(-btEffectCounter));
 
 		color = mix(vec3(dot(color.rgb, vec3(1.0, 1.0, 1.0))), color.rgb, colorScale);
 		color *= max(exp, customExp);
 	}
 
-	// First flash when activating bullet time
+	//First flash when activating bullet time
 	if (btEffectCounter > 1) 
 	{
-		color += vec3(0.01 * btEffectCounter, 0.01 * btEffectCounter, 0.01 * btEffectCounter);
+		color += vec3(0.01 * float(btEffectCounter), 0.01 * float(btEffectCounter), 0.01 * float(btEffectCounter));
 	}
 
-	// Output
+	//Output
 	FragColor = vec4(color, 1.0);
 }
 
