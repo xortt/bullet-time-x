@@ -9,6 +9,7 @@ OptionMenu "BtOptions"
 
     StaticText " "
     StaticText "Changes will take effect on next level"
+    StaticText " "
 
     StaticText "Duration Configuration", 1
     StaticText " "
@@ -32,11 +33,11 @@ OptionMenu "BtOptions"
     StaticText " "
     StaticText " "
 
-    StaticText "Mid Air Multipliers", 1
+    StaticText "Mid-Air Multipliers", 1
     StaticText " "
-    Option "Enable Mid Air Multipliers", "bt_enable_midair", "OnOff"
+    Option "Enable Mid-Air Multipliers", "bt_enable_midair", "OnOff"
     StaticText " "
-    Option "Enable Mid Air only when jumping", "bt_enable_midair_jump_only", "OnOff"
+    Option "Enable Mid-Air only when jumping", "bt_enable_midair_jump_only", "OnOff"
     StaticText " "
     Slider "Minimum distance to floor", "bt_midair_min_distance", 8, 128, 8
     StaticText "                 Default is 16"
@@ -58,9 +59,16 @@ OptionMenu "BtOptions"
     StaticText "                Default is 2"
     Slider "Player Weapons Multiplier", "bt_berserk_player_weapon_speed_multiplier", 2, 20, 1
     StaticText "                Default is 2"
-    Slider "Berserk + Mid Air Player Movement Multiplier", "bt_berserk_midair_player_movement_multiplier", 2, 20, 1
+
+
+    StaticText " "
+    StaticText " "
+
+    StaticText "Berkser + Mid-Air Multipliers", 1
+    StaticText " "
+    Slider "Player Movement Multiplier", "bt_berserk_midair_player_movement_multiplier", 2, 20, 1
     StaticText "                 Default is 12"
-    Slider "Berkser + Mid Air Player Weapons Multiplier", "bt_berserk_midair_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Player Weapons Multiplier", "bt_berserk_midair_player_weapon_speed_multiplier", 2, 20, 1
     StaticText "                Default is 5"
 
 

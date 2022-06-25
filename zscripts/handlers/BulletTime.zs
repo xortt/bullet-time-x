@@ -87,7 +87,7 @@ class BulletTime : EventHandler
 				{
 					btItemData.actorInfo.playerJumpTic = 2;
 				}
-				if (btItemData.adrenalinePlayerInfo != NULL) // for mid air bullet time
+				if (btItemData.adrenalinePlayerInfo != NULL) // for midair bullet time
 				{
 					btItemData.adrenalinePlayerInfo.playerJumpTic = 2;
 					btItemData.adrenalinePlayerInfo.playerJumped = true;
@@ -938,76 +938,35 @@ class BulletTime : EventHandler
 
 	void slowLightSectors(bool applySlow)
 	{
-		if (btTic >= btMultiplier)
-		{
-			Thinker lightThinker;
-			ThinkerIterator testingList = ThinkerIterator.Create("Lighting", Thinker.STAT_STATIC);
-			while (lightThinker = Thinker(testingList.Next()) )
-			{
-				lightThinker.changeStatNum(Thinker.STAT_LIGHT);
-			}
-		}
-		else if (btTic == 1)
-		{
-			Thinker lightThinker;
-			ThinkerIterator testingList = ThinkerIterator.Create("Lighting", Thinker.STAT_LIGHT);
-			while (lightThinker = Thinker(testingList.Next()) )
-			{
-				lightThinker.changeStatNum(Thinker.STAT_STATIC);
-			}
-		}
+		int thinkerType = (applySlow && btTic == 1) ? Thinker.STAT_LIGHT : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_STATIC : -1;
+		int changedThinkerType = (applySlow && btTic == 1) ? Thinker.STAT_STATIC : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_LIGHT : -1;
 
-		if (!applySlow)
+		if (thinkerType != -1)
 		{
 			Thinker lightThinker;
-			ThinkerIterator testingList = ThinkerIterator.Create("Lighting", Thinker.STAT_STATIC);
-			while (lightThinker = Thinker(testingList.Next()) )
+			ThinkerIterator thinkerList = ThinkerIterator.Create("Lighting", thinkerType);
+			while (lightThinker = Thinker(thinkerList.Next()) )
 			{
-				lightThinker.changeStatNum(Thinker.STAT_LIGHT);
-				
+				lightThinker.changeStatNum(changedThinkerType);
 			}
 		}
 	}
 	void slowScrollers(bool applySlow)
 	{
-		if (btTic >= btMultiplier)
-		{
-			Thinker scrollerThinker;
-			ThinkerIterator thinkerList = ThinkerIterator.Create("Object", Thinker.STAT_STATIC);
-			while (scrollerThinker = Thinker(thinkerList.Next()) )
-			{
-				string thinkerClassName = scrollerThinker.GetClassName();
-				if (thinkerClassName == "Scroller")
-				{
-					scrollerThinker.changeStatNum(Thinker.STAT_SCROLLER);
-				}	
-			}
-		}
-		else if (btTic == 1)
-		{
-			Thinker scrollerThinker;
-			ThinkerIterator thinkerList = ThinkerIterator.Create("Object", Thinker.STAT_SCROLLER);
-			while (scrollerThinker = Thinker(thinkerList.Next()) )
-			{
-				string thinkerClassName = scrollerThinker.GetClassName();
-				if (thinkerClassName == "Scroller")
-				{
-					scrollerThinker.changeStatNum(Thinker.STAT_STATIC);
-				}
-			}
-		}
+		int thinkerType = (applySlow && btTic == 1) ? Thinker.STAT_SCROLLER : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_STATIC : -1;
+		int changedThinkerType = (applySlow && btTic == 1) ? Thinker.STAT_STATIC : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_SCROLLER : -1;
 
-		if (!applySlow)
+		if (thinkerType != -1)
 		{
 			Thinker scrollerThinker;
-			ThinkerIterator thinkerList = ThinkerIterator.Create("Object", Thinker.STAT_STATIC);
+			ThinkerIterator thinkerList = ThinkerIterator.Create("Object", thinkerType);
 			while (scrollerThinker = Thinker(thinkerList.Next()) )
 			{
 				string thinkerClassName = scrollerThinker.GetClassName();
 				if (thinkerClassName == "Scroller")
 				{
-					scrollerThinker.changeStatNum(Thinker.STAT_SCROLLER);
-				}	
+					scrollerThinker.changeStatNum(changedThinkerType);
+				}
 			}
 		}
 	}
