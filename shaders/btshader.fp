@@ -1,6 +1,3 @@
-//Resolution reduction
-//4 = 1/4th screen resolution
-float resfactor = 1.0;
 float exposure = 1.0;
 
 void main(){
@@ -12,9 +9,6 @@ void main(){
 	float brightnessOffMultiplier = btEffectInvulnerability > 0 ? 0.05 : 0.2;
 
 	exp = exp / expcurve;
-
-	//Limit resfactor
-	float resfactor = max(16.0, 1.0);
 
 	//Get pixels
 	vec3 color = texture(InputTexture, TexCoord).rgb;
