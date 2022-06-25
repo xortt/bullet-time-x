@@ -168,15 +168,15 @@ class BulletTime : EventHandler
 
 		if (btActive)
 		{
-			applyMultipliers(forceDoSlowGame);
-			slowGame(true, doUpdateMonsterInfoList);
+			bool fromMultiplierChange = applyMultipliers(forceDoSlowGame);
+			slowGame(true, doUpdateMonsterInfoList, fromMultiplierChange);
 
 			// btTic will be 0 when bullet time just started, but always > 1 afterwards
 			btTic = btTic > (btMultiplier + 1) ? 1 : btTic + 1;
 		}
 		else if (doUpdateMonsterInfoList)
 		{
-			trackActors(false, false, doUpdateMonsterInfoList); // on 35th tic, check for new monsters (spanwed, resurrected)
+			trackActors(false, false, doUpdateMonsterInfoList, false); // on 35th tic, check for new monsters (spanwed, resurrected)
 		}
 
 		// counter for updating monster info list every 35 tics.
@@ -290,7 +290,7 @@ class BulletTime : EventHandler
 		}
 	}
 
-	void applyMultipliers(bool forceDoSlowGame = false)
+	bool applyMultipliers(bool forceDoSlowGame = false)
 	{
 		bool doSlowGame = forceDoSlowGame;
 
@@ -322,10 +322,10 @@ class BulletTime : EventHandler
 		}
 
 		bool isBerserk = cvBtEnableBerserkEffect && btActive && btBerserkActive;
-
-		if ((cvBtEnableMidAir || cvBtEnableBerserkEffect) && doSlowGame && btTic > 0)
+		doSlowGame = (cvBtEnableMidAir || cvBtEnableBerserkEffect) && doSlowGame && btTic > 0;
+		if (doSlowGame)
 		{
-			slowGame(false, false);
+			slowGame(false, false, true);
 		}
 
 		if (cvBtEnableMidAir && isMidAir && cvBtEnableBerserkEffect && isBerserk)
@@ -356,6 +356,8 @@ class BulletTime : EventHandler
 		postTickController.btMultiplier = btMultiplier;
 		postTickController.btPlayerMovementMultiplier = btPlayerMovementMultiplier;
 		postTickController.btPlayerWeaponSpeedMultiplier = btPlayerWeaponSpeedMultiplier;
+
+		return doSlowGame;
 	}
 
 	/**
@@ -386,7 +388,7 @@ class BulletTime : EventHandler
 		else if (btActive)
 		{ // stops bullet time
 			btTic = 0;
-			slowGame(false, false);
+			slowGame(false, false, false);
 
 			if (player) 
 			{
@@ -619,11 +621,11 @@ class BulletTime : EventHandler
 	* Track all Actors of current game. When bt is enabled, they will be slowed down / sped up.
 	* Also updates monsterInfoList if needed
 	**/
-	void trackActors(bool handleSlowActor, bool applySlow, bool doUpdateMonsterInfoList)
+	void trackActors(bool handleSlowActor, bool applySlow, bool doUpdateMonsterInfoList, bool fromMultiplierChange)
 	{
 		Actor curActor;
 		ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
-		
+
 		while (curActor = Actor(actorList.Next()))
 		{
 			bool notStaticActor = curActor.tics > 0;
@@ -638,21 +640,21 @@ class BulletTime : EventHandler
 
 			if (handleSlowActor)
 			{
-				slowActor(curActor, applySlow, btItemData);
+				slowActor(curActor, applySlow, btItemData, fromMultiplierChange);
 			}
 		}
 	}
 
-	void slowGame(bool bulletTime, bool updateMonsterInfoList)
+	void slowGame(bool bulletTime, bool updateMonsterInfoList, bool fromMultiplierChange)
 	{
 		slowLightSectors(bulletTime);
 		slowMovingSectors(bulletTime);
 		slowPlayers(bulletTime);
-		trackActors(true, bulletTime, updateMonsterInfoList);
+		trackActors(true, bulletTime, updateMonsterInfoList, fromMultiplierChange);
 		slowScrollers(bulletTime);
 	}
 
-	void slowActor(Actor curActor, bool applySlow, BtItemData btItemData)
+	void slowActor(Actor curActor, bool applySlow, BtItemData btItemData, bool fromMultiplierChange = false)
 	{
 		bool createNewActorInfo = btItemData.actorInfo == NULL;
 
@@ -670,12 +672,19 @@ class BulletTime : EventHandler
 			if (curActor.tics != -1)
 				curActor.tics = applySlow ? curActor.tics * btMultiplier : curActor.tics / btMultiplier;
 		}
+		else if (applySlow && fromMultiplierChange) // when multiplier changes, speed is returned back to normal so we have to change back tics and vel to where it was when bt is on
+		{
+			btItemData.actorInfo.lastTics /= btMultiplier;
+			btItemData.actorInfo.lastVel /= btMultiplier;
+			curActor.vel = btItemData.actorInfo.lastVel;
+			curActor.tics = btItemData.actorInfo.lastTics;
+		}
 		else if (!createNewActorInfo && applySlow)
 		{ // when bt is on, slow down velocity constantly
 			double velZZ = abs(curActor.vel.z - btItemData.actorInfo.lastVel.z);
-			bool newZ = velZZ > 1.1 && abs(curActor.vel.z) < 32766; // last
+			bool newZ = velZZ > 1.1 && abs(curActor.vel.z) < 32766 && !fromMultiplierChange; // last
 
-			double velX = btItemData.actorInfo.lastVel.x != curActor.vel.x  && curActor.vel.x != 0
+			double velX = btItemData.actorInfo.lastVel.x != curActor.vel.x && curActor.vel.x != 0
 						? btItemData.actorInfo.lastVel.x + (curActor.vel.x - btItemData.actorInfo.lastVel.x) / btMultiplier
 						: curActor.vel.x;
 			double velY = btItemData.actorInfo.lastVel.y != curActor.vel.y && curActor.vel.y != 0
@@ -687,6 +696,7 @@ class BulletTime : EventHandler
 
 			if (newZ) velZ *= btMultiplier;
 			if (velZZ > 32766) velZ = 0;
+
 			curActor.vel = (velX, velY, velZ);
 
 			if (btItemData.actorInfo.lastTics == 1 &&
@@ -696,7 +706,10 @@ class BulletTime : EventHandler
 				curActor.tics = (applySlow) ? curActor.tics * btMultiplier : curActor.tics / btMultiplier;
 			}
 		}
-	
+
+		// prevents any actor from reaching tic 0 due to float to int conversion
+		if (!applySlow && curActor.tics == 0) curActor.tics = 1;
+
 		// Slow sound pitch
 		float soundPitch = applySlow ? BtHelperFunctions.calculateSoundPitch(btMultiplier) : 1.0;
 		// (this if check is mostly for optimization purposes, +40fps nice)
@@ -713,15 +726,21 @@ class BulletTime : EventHandler
 		btItemData.actorInfo.lastTics = curActor.tics;
 		btItemData.actorInfo.lastVel = curActor.vel;
 
-		if (!applySlow) btItemData.actorInfo = NULL; // removes actorInfo, so that when reactivating bullet time, it is slowed down again
+		if (!applySlow && !fromMultiplierChange) btItemData.actorInfo = NULL; // removes actorInfo, so that when reactivating bullet time, it is slowed down again
 	}
 
-	void slowPlayers(bool applySlow)
+	void slowPlayers(bool applySlow, bool fromMultiplierChange = false)
 	{
 		PlayerPawn doomPlayer;
 		ThinkerIterator playerList = ThinkerIterator.Create("PlayerPawn", Thinker.STAT_PLAYER);
 
-		int weaponLayerAmount = 200; // -100 to 100
+		// supports -100 to 100 overlays of weapons
+		int weaponLayerAmount = 200;
+		Array<Int> weaponLayers;
+		for (int i = -(int(weaponLayerAmount / 2)); i <= int(weaponLayerAmount / 2) - 1; i++) {
+			weaponLayers.Push(i);
+		}
+		weaponLayers.Push(1000); // for Flash overlay
 
 		while (doomPlayer = PlayerPawn(playerList.Next()) )
 		{
@@ -754,6 +773,11 @@ class BulletTime : EventHandler
 				doomPlayer.speed = applySlow ? doomPlayer.speed / btPlayerMovementMultiplier : btItemData.actorInfo.lastSpeed * btPlayerMovementMultiplier;
 				doomPlayer.vel = applySlow ? doomPlayer.vel / btPlayerMovementMultiplier : btItemData.actorInfo.lastVel * btPlayerMovementMultiplier;
 				doomPlayer.viewBob = applySlow ? doomPlayer.viewBob / btPlayerMovementMultiplier : doomPlayer.viewBob * btPlayerMovementMultiplier;
+			}
+			else if (applySlow && fromMultiplierChange) // when multiplier changes, speed is returned back to normal so we have to change back tics and vel to where it was when bt is on
+			{
+				btItemData.actorInfo.lastVel /= btMultiplier;
+				doomPlayer.vel = btItemData.actorInfo.lastVel;
 			}
 			else if (!createNewPlayerInfo && applySlow)
 			{ // check for change in movement speed constantly
@@ -856,17 +880,17 @@ class BulletTime : EventHandler
 			}
 
 			// slow down player current weapon, also its flash / overlay states
-			Array<Int> weaponLayers;
-			for (int i = -(int(weaponLayerAmount / 2)); i <= int(weaponLayerAmount / 2) - 1; i++) {
-				weaponLayers.Push(i);
-			}
-			weaponLayers.Push(1000); // for overlay Flash
-
 			for (int j = 0; j < weaponLayers.Size(); j++)
 			{
 				PSprite playerWp = doomPlayer.Player.FindPSprite(weaponLayers[j]);
 				if (playerWp)
 				{
+					if (applySlow && fromMultiplierChange)
+					{
+						btItemData.actorInfo.lastWeaponTics[j] /= btMultiplier;
+						playerWp.tics = btItemData.actorInfo.lastWeaponTics[j];
+					}
+
 					bool slowTicPlayer = (btItemData.actorInfo.lastWeaponTics[j] == 1 || 
 										  createNewPlayerInfo || 
 										  playerWp.CurState != btItemData.actorInfo.lastWeaponState[j]) 
@@ -899,7 +923,7 @@ class BulletTime : EventHandler
 				btItemData.actorInfo.lastSector.damageinterval /= btMultiplier;
 				btItemData.actorInfo.lastSector = doomPlayer.CurSector;
 				doomPlayer.CurSector.damageinterval = applySlow 
-					? doomPlayer.CurSector.damageinterval * btMultiplier 
+					? doomPlayer.CurSector.damageinterval * btMultiplier
 					: doomPlayer.CurSector.damageinterval;
 			}
 
@@ -908,7 +932,7 @@ class BulletTime : EventHandler
 			btItemData.actorInfo.lastSector = doomplayer.CurSector;
 			btItemData.actorInfo.playerJumpTic = btItemData.actorInfo.playerJumpTic > 0 ? btItemData.actorInfo.playerJumpTic - 1 : 0; // resets playerJumped check
 
-			if (!applySlow) btItemData.actorInfo = NULL; // removes actorInfo, so that when reactivating bullet time, it is slowed down again
+			if (!applySlow && !fromMultiplierChange) btItemData.actorInfo = NULL; // removes actorInfo, so that when reactivating bullet time, it is slowed down again
 		}
 	}
 

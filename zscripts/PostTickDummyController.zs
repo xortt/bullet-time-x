@@ -2,7 +2,7 @@
 	PostTickDummyController is used to control thinkers POST tick.
 	When spawned, its thinker priority number is the last one, so it will always be
 	the last one on the list to run the script.
-	This is very useful to control actor, sector behaviors.
+	This is very useful to correct actor, sector behaviors when on bullet time.
 */
 class PostTickDummyController : Actor
 {
