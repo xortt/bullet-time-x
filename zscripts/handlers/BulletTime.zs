@@ -45,6 +45,7 @@ class BulletTime : EventHandler
 	int cvBtBerserkMidAirPlayerWeaponSpeedMultiplier;
 
 	int cvBtMaxDurationMultiplier;
+	int cvBtAdrenalineRegenSpeed;
 	bool cvBtIsUnlimited;
 	bool cvBtKillRewardWhenActive;
 	bool cvBtHeartBeat;
@@ -121,6 +122,7 @@ class BulletTime : EventHandler
 		cvBtHeartBeat = cv.GetCVar("bt_heartbeat").GetInt();
 		cvBtIsUnlimited = cv.GetCVar("bt_unlimited").GetInt();
 		cvBtKillRewardWhenActive = cv.GetCVar("bt_kill_reward_when_active").GetInt();
+		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
 		int cvBtMaxDuration = clamp(cv.GetCVar("bt_max_duration").GetInt(), 15, 120);
 
 		// initialize variables
@@ -511,6 +513,14 @@ class BulletTime : EventHandler
 				btItemData.adrenalinePlayerInfo.playerJumped = false;
 			}
 			else if (btItemData.adrenalinePlayerInfo.playerJumpTic > 0) btItemData.adrenalinePlayerInfo.playerJumpTic--;
+
+			// handle adrenaline regeneration
+			int ticDiff = 35 - cvBtAdrenalineRegenSpeed;
+			if (!btActive && ticDiff < 35)
+			{
+				bool doRegenAdrenaline = (btOneSecondTick - cvBtAdrenalineRegenSpeed) < 0;
+				if (doRegenAdrenaline) doomPlayer.GiveInventory("BtAdrenaline", 1);
+			}
 		}
 	}
 

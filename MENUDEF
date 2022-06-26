@@ -17,6 +17,8 @@ OptionMenu "BtOptions"
     StaticText " "
     Option "Enable Adrenaline Rewards during Bullet Time", "bt_kill_reward_when_active", "OnOff"
     StaticText " "
+    Slider "Adrenaline Regeneration Speed", "bt_adrenaline_regen_speed", 0, 35, 1
+    StaticText "                         Default is 6"
     Slider "Bullet Time Max Duration", "bt_max_duration", 15, 120, 15
     StaticText "                         Default is 15 seconds"
 
