@@ -46,6 +46,7 @@ class BulletTime : EventHandler
 
 	int cvBtMaxDurationMultiplier;
 	bool cvBtIsUnlimited;
+	bool cvBtKillRewardWhenActive;
 	bool cvBtHeartBeat;
 
 	// post tick bt controller
@@ -119,6 +120,7 @@ class BulletTime : EventHandler
 
 		cvBtHeartBeat = cv.GetCVar("bt_heartbeat").GetInt();
 		cvBtIsUnlimited = cv.GetCVar("bt_unlimited").GetInt();
+		cvBtKillRewardWhenActive = cv.GetCVar("bt_kill_reward_when_active").GetInt();
 		int cvBtMaxDuration = clamp(cv.GetCVar("bt_max_duration").GetInt(), 15, 120);
 
 		// initialize variables
@@ -553,7 +555,7 @@ class BulletTime : EventHandler
 						adrenalineValue += clamp(curActor.startHealth / 10, 0, 350);
 					}
 
-					if (!btActive) // grant only when bullet time is not enabled
+					if (cvBtKillRewardWhenActive || !btActive) // grant only when bullet time is not enabled
 						curActor.attacker.GiveInventory("BtAdrenaline", adrenalineValue);
 
 					// second attacker is when a player hits an explosive barrel, and that kills the monster
