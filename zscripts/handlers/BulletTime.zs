@@ -102,26 +102,26 @@ class BulletTime : EventHandler
 	{
 		// get cvars
 		CVar cv;
-		cvBtMultiplier = cv.GetCVar("bt_multiplier").GetInt();
-		cvBtPlayerMovementMultiplier = cv.GetCVar("bt_player_movement_multiplier").GetInt();
-		cvBtPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt();
+		cvBtMultiplier = clamp(cv.GetCVar("bt_multiplier").GetInt(), 2, 20);
+		cvBtPlayerMovementMultiplier = clamp(cv.GetCVar("bt_player_movement_multiplier").GetInt(), 2, 20);
+		cvBtPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
-		cvBtEnableMidAir = cv.GetCVar("bt_enable_midair").GetInt();
-		cvBtMidAirJumpOnly = cv.GetCVar("bt_enable_midair_jump_only").GetInt();
-		cvBtMidAirMinDistance = cv.GetCVar("bt_midair_min_distance").GetInt();
-		cvBtMidAirMultiplier = cv.GetCVar("bt_midair_multiplier").GetInt();
-		cvBtMidAirPlayerMovementMultiplier = cv.GetCVar("bt_midair_player_movement_multiplier").GetInt();
-		cvBtMidAirPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_midair_player_weapon_speed_multiplier").GetInt();
+		cvBtEnableMidAir = clamp(cv.GetCVar("bt_enable_midair").GetInt(), 0, 1);
+		cvBtMidAirJumpOnly = clamp(cv.GetCVar("bt_enable_midair_jump_only").GetInt(), 0, 1);
+		cvBtMidAirMinDistance = clamp(cv.GetCVar("bt_midair_min_distance").GetInt(), 8, 128);
+		cvBtMidAirMultiplier = clamp(cv.GetCVar("bt_midair_multiplier").GetInt(), 2, 20);
+		cvBtMidAirPlayerMovementMultiplier = clamp(cv.GetCVar("bt_midair_player_movement_multiplier").GetInt(), 2, 20);
+		cvBtMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
-		cvBtEnableBerserkEffect = cv.GetCVar("bt_enable_berserk_effect").GetInt();
-		cvBtBerserkPlayerMovementMultiplier = cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt();
-		cvBtBerserkPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt();
-		cvBtBerserkMidAirPlayerMovementMultiplier = cv.GetCVar("bt_berserk_midair_player_movement_multiplier").GetInt();
-		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt();
+		cvBtEnableBerserkEffect = clamp(cv.GetCVar("bt_enable_berserk_effect").GetInt(), 0, 1);
+		cvBtBerserkPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt(), 2, 20);
+		cvBtBerserkPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt(), 2, 20);
+		cvBtBerserkMidAirPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_movement_multiplier").GetInt(), 2, 20);
+		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
-		cvBtHeartBeat = cv.GetCVar("bt_heartbeat").GetInt();
-		cvBtIsUnlimited = cv.GetCVar("bt_unlimited").GetInt();
-		cvBtKillRewardWhenActive = cv.GetCVar("bt_kill_reward_when_active").GetInt();
+		cvBtHeartBeat = clamp(cv.GetCVar("bt_heartbeat").GetInt(), 0, 1);
+		cvBtIsUnlimited = clamp(cv.GetCVar("bt_unlimited").GetInt(), 0, 1);
+		cvBtKillRewardWhenActive = clamp(cv.GetCVar("bt_kill_reward_when_active").GetInt(), 0, 1);
 		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
 		int cvBtMaxDuration = clamp(cv.GetCVar("bt_max_duration").GetInt(), 15, 120);
 
@@ -242,6 +242,11 @@ class BulletTime : EventHandler
 
 			// uiscale option
 			CVar cv;
+			int cvBtCounterHorizontalPosition = clamp(cv.GetCVar("bt_counter_horizontal_position").GetInt(), 1, 3);
+			int cvBtCounterVerticalPosition = clamp(cv.GetCVar("bt_counter_vertical_position").GetInt(), 1, 3);
+			int cvBtCounterHorizontalOffset = clamp(cv.GetCVar("bt_counter_horizontal_offset").GetInt(), -200, 200);
+			int cvBtCounterVerticalOffset = clamp(cv.GetCVar("bt_counter_vertical_offset").GetInt(), -200, 200);
+			int cvBtCounterScale = clamp(cv.GetCVar("bt_counter_scale").GetInt(), 1, 10);
 			int uiscale = clamp(cv.GetCVar("uiscale").GetInt() - 1, 1, 6);
 
 			// sand clock dimensiones
@@ -249,11 +254,20 @@ class BulletTime : EventHandler
 			double height = 561 * uiscale;
 
 			// draw sizes
-			int destWidth = width / 5;
-			int destHeight = height / 5;
+			// 15 is max size, so we use 16 to prevent division with 0 when scaling.
+			int destWidth = width / (16 - (cvBtCounterScale * 1.5));
+			int destHeight = height / (16 - (cvBtCounterScale * 1.5));
 
-			int offsetHeight = 50;
-			int offsetWidth = screenWidth - destWidth - 50;
+			int offsetWidth = cvBtCounterHorizontalOffset;
+			int offsetHeight = cvBtCounterVerticalOffset;
+
+			// horizontal position
+			if (cvBtCounterHorizontalPosition == 2) offsetWidth += (screenWidth / 2) - (destWidth / 2); // middle
+			else if (cvBtCounterHorizontalPosition == 3) offsetWidth += screenWidth - destWidth - (cvBtCounterHorizontalOffset * 2); // bottom
+
+			// vertical position (default goes top)
+			if (cvBtCounterVerticalPosition == 2) offsetHeight += (screenHeight / 2) - (destHeight / 2); // middle
+			else if (cvBtCounterVerticalPosition == 3) offsetHeight += screenHeight - destHeight - (cvBtCounterVerticalOffset * 2); // right
 
 			// calculates image height based on bullet time counter
 			double imageHeight = (height / uiscale) - ((height / uiscale) * (bulletTimeAmount / bulletTimeTotal));
