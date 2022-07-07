@@ -81,12 +81,12 @@ OptionMenu "BtOptions"
     StaticText "UI", 1
     StaticText " "
 
-    Option "Adrenaline Counter Horizontal Position", "bt_counter_horizontal_position", "BtCounterPositionHorizontalValues"
-    Option "Adrenaline Counter Vertical Position", "bt_counter_vertical_position", "BtCounterPositionVerticalValues"
-    Slider "Adrenaline Counter Horizontal Offset", "bt_counter_horizontal_offset", -200, 200, 10
-    StaticText "                Default is 50"
-    Slider "Adrenaline Counter Vertical Offset", "bt_counter_vertical_offset", -200, 200, 10
-    StaticText "                Default is 50"
+    Slider "Adrenaline Counter Horizontal Offset", "bt_counter_horizontal_offset", 0, 100, 1
+    StaticText "                Default is 95"
+
+    Slider "Adrenaline Counter Vertical Offset", "bt_counter_vertical_offset", 0, 100, 1
+    StaticText "                Default is 10"
+
     StaticText " "
     Slider "Adrenaline Counter Scale", "bt_counter_scale", 1, 10, 1
     StaticText "                 Default is 7"
@@ -99,18 +99,4 @@ OptionMenu "BtOptions"
     StaticText "Additional", 1
     StaticText " "
     Option "Enable Heartbeat Sound Effect", "bt_heartbeat", "OnOff"
-}
-
-OptionValue "BtCounterPositionHorizontalValues"
-{
-    1, "Left"
-    2, "Middle"
-    3, "Right"
-}
-
-OptionValue "BtCounterPositionVerticalValues"
-{
-    1, "Top"
-    2, "Middle"
-    3, "Bottom"
 }

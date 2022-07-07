@@ -242,10 +242,8 @@ class BulletTime : EventHandler
 
 			// uiscale option
 			CVar cv;
-			int cvBtCounterHorizontalPosition = clamp(cv.GetCVar("bt_counter_horizontal_position").GetInt(), 1, 3);
-			int cvBtCounterVerticalPosition = clamp(cv.GetCVar("bt_counter_vertical_position").GetInt(), 1, 3);
-			int cvBtCounterHorizontalOffset = clamp(cv.GetCVar("bt_counter_horizontal_offset").GetInt(), -200, 200);
-			int cvBtCounterVerticalOffset = clamp(cv.GetCVar("bt_counter_vertical_offset").GetInt(), -200, 200);
+			float cvBtCounterHorizontalOffset = float(clamp(cv.GetCVar("bt_counter_horizontal_offset").GetInt(), 0, 100)) / 100;
+			float cvBtCounterVerticalOffset = float(clamp(cv.GetCVar("bt_counter_vertical_offset").GetInt(), 0, 100)) / 100;
 			int cvBtCounterScale = clamp(cv.GetCVar("bt_counter_scale").GetInt(), 1, 10);
 			int uiscale = clamp(cv.GetCVar("uiscale").GetInt() - 1, 1, 6);
 
@@ -258,16 +256,8 @@ class BulletTime : EventHandler
 			int destWidth = width / (16 - (cvBtCounterScale * 1.5));
 			int destHeight = height / (16 - (cvBtCounterScale * 1.5));
 
-			int offsetWidth = cvBtCounterHorizontalOffset;
-			int offsetHeight = cvBtCounterVerticalOffset;
-
-			// horizontal position
-			if (cvBtCounterHorizontalPosition == 2) offsetWidth += (screenWidth / 2) - (destWidth / 2); // middle
-			else if (cvBtCounterHorizontalPosition == 3) offsetWidth += screenWidth - destWidth - (cvBtCounterHorizontalOffset * 2); // bottom
-
-			// vertical position (default goes top)
-			if (cvBtCounterVerticalPosition == 2) offsetHeight += (screenHeight / 2) - (destHeight / 2); // middle
-			else if (cvBtCounterVerticalPosition == 3) offsetHeight += screenHeight - destHeight - (cvBtCounterVerticalOffset * 2); // right
+			int offsetWidth = (screenWidth * cvBtCounterHorizontalOffset) - (destWidth * cvBtCounterHorizontalOffset);
+			int offsetHeight = (screenHeight * cvBtCounterVerticalOffset) - (destHeight * cvBtCounterVerticalOffset);
 
 			// calculates image height based on bullet time counter
 			double imageHeight = (height / uiscale) - ((height / uiscale) * (bulletTimeAmount / bulletTimeTotal));

@@ -20,10 +20,8 @@ server int bt_max_duration = 15;
 server int bt_kill_reward_when_active = 0;
 server int bt_adrenaline_regen_speed = 6;
 
-server int bt_counter_horizontal_position = 3;
-server int bt_counter_vertical_position = 1;
-server int bt_counter_horizontal_offset = 50;
-server int bt_counter_vertical_offset = 50;
+server int bt_counter_horizontal_offset = 95;
+server int bt_counter_vertical_offset = 10;
 server int bt_counter_scale = 7;
 
 server int bt_heartbeat = 1;
