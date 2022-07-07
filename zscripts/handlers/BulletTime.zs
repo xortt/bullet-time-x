@@ -44,10 +44,12 @@ class BulletTime : EventHandler
 	int cvBtBerserkMidAirPlayerMovementMultiplier;
 	int cvBtBerserkMidAirPlayerWeaponSpeedMultiplier;
 
-	int cvBtMaxDurationMultiplier;
+	int cvBtAdrenalineMaxDurationMultiplier;
 	int cvBtAdrenalineRegenSpeed;
-	bool cvBtIsUnlimited;
-	bool cvBtKillRewardWhenActive;
+	int cvBtAdrenalineKillRewardMultiplier;
+	int cvBtAdrenalinePlayerDamageRewardMultiplier;
+	bool cvBtAdrenalineUnlimited;
+	bool cvBtAdrenalineKillRewardWhenActive;
 	bool cvBtHeartBeat;
 
 	// post tick bt controller
@@ -120,10 +122,13 @@ class BulletTime : EventHandler
 		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
 		cvBtHeartBeat = clamp(cv.GetCVar("bt_heartbeat").GetInt(), 0, 1);
-		cvBtIsUnlimited = clamp(cv.GetCVar("bt_unlimited").GetInt(), 0, 1);
-		cvBtKillRewardWhenActive = clamp(cv.GetCVar("bt_kill_reward_when_active").GetInt(), 0, 1);
+
+		cvBtAdrenalineUnlimited = clamp(cv.GetCVar("bt_adrenaline_unlimited").GetInt(), 0, 1);
+		cvBtAdrenalineKillRewardWhenActive = clamp(cv.GetCVar("bt_adrenaline_kill_reward_when_active").GetInt(), 0, 1);
+		cvBtAdrenalineKillRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_kill_reward_multiplier").GetInt(), 0, 10);
+		cvBtAdrenalinePlayerDamageRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_player_damage_reward_multiplier").GetInt(), 0, 10);
 		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
-		int cvBtMaxDuration = clamp(cv.GetCVar("bt_max_duration").GetInt(), 15, 120);
+		int cvBtAdrenalineMaxDuration = clamp(cv.GetCVar("bt_adrenaline_max_duration").GetInt(), 15, 120);
 
 		// initialize variables
 		btMultiplier = cvBtMultiplier;
@@ -133,7 +138,7 @@ class BulletTime : EventHandler
 		btBerserkActive = false;
 		btMidAirActive = false;
 
-		cvBtMaxDurationMultiplier = round(cvBtMaxDuration / 15);
+		cvBtAdrenalineMaxDurationMultiplier = round(cvBtAdrenalineMaxDuration / 15);
 		btMaxDurationCounter = 1;
 
 		// render variables
@@ -191,14 +196,14 @@ class BulletTime : EventHandler
 		if (btPlayerActivator)
 		{
 			// hack to allow bullet time to last more if set in cvar bt_max_duration
-			if (btMaxDurationCounter == cvBtMaxDurationMultiplier)
+			if (btMaxDurationCounter == cvBtAdrenalineMaxDurationMultiplier)
 			{
 				btPlayerActivator.TakeInventory("BtAdrenaline", 1);
 			}
-			btMaxDurationCounter = btMaxDurationCounter >= cvBtMaxDurationMultiplier ? 1 : btMaxDurationCounter + 1;
+			btMaxDurationCounter = btMaxDurationCounter >= cvBtAdrenalineMaxDurationMultiplier ? 1 : btMaxDurationCounter + 1;
 
 			// disables bullet time when ran out of adrenaline / player hit floor or step onto another actor
-			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1) || cvBtIsUnlimited;
+			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1) || cvBtAdrenalineUnlimited;
 			bool steppingFloorOrActor = (btPlayerActivator.floorz == btPlayerActivator.pos.z || BtHelperFunctions.checkPlayerIsSteppingActor(btPlayerActivator));
 			if ((!canUseBulletTime && steppingFloorOrActor) || btPlayerActivator.health < 1)
 			{
@@ -229,7 +234,7 @@ class BulletTime : EventHandler
         Shader.SetUniform1i(players[consoleplayer], "btshader", "btEffectInvulnerability", btEffectInvulnerability);
 		
 		// shader calculations for drawing sand clocks
-		if (!cvBtIsUnlimited)
+		if (!cvBtAdrenalineUnlimited)
 		{
 			bool hasBerserker = p.mo.CountInv("BtBerserkerCounter") > 0;
 			double bulletTimeAmount = p.mo.CountInv("BtAdrenaline");
@@ -374,7 +379,7 @@ class BulletTime : EventHandler
 	*/
 	void doSlowTime(bool applySlow, PlayerPawn player)
 	{
-		bool hasBulletTimeCounter = (player.CheckInventory("BtBerserkerCounter", 1)) || player.CheckInventory("BtAdrenaline", 1) || cvBtIsUnlimited;
+		bool hasBulletTimeCounter = (player.CheckInventory("BtBerserkerCounter", 1)) || player.CheckInventory("BtAdrenaline", 1) || cvBtAdrenalineUnlimited;
 
 		// starts bullet time
 		if (applySlow && (hasBulletTimeCounter || player.pos.z != player.floorz) && player.health > 0)
@@ -450,7 +455,7 @@ class BulletTime : EventHandler
 			if (newHealth != oldHealth)
 			{
 				int itemAmount = newHealth < oldHealth 
-					? (oldHealth - newHealth) * 3.5 :  0;
+					? (oldHealth - newHealth) * cvBtAdrenalinePlayerDamageRewardMultiplier : 0;
 				doomPlayer.GiveInventory("BtAdrenaline", itemAmount);
 			}
 			btItemData.adrenalinePlayerInfo.lastHealth = doomPlayer.health;
@@ -552,24 +557,24 @@ class BulletTime : EventHandler
 			{ 
 				if (curActor.attacker) 
 				{
-					int adrenalineValue = 20;
+					int adrenalineValue = 1 * cvBtAdrenalineKillRewardMultiplier;
 					if (curActor.actorRef)
 					{
 						// grants adrenaline based on damage done
 						if (curActor.actorRef.health < -200) 
-							adrenalineValue += 25;
+							adrenalineValue += 5 * cvBtAdrenalineKillRewardMultiplier;
 					 	else if (curActor.actorRef.health < -100) 
-							adrenalineValue += 17;
+							adrenalineValue += 3 * cvBtAdrenalineKillRewardMultiplier;
 						else if (curActor.actorRef.health < -50) 
-							adrenalineValue += 10;
+							adrenalineValue += 2 * cvBtAdrenalineKillRewardMultiplier;
 						else if (curActor.actorRef.health < -20) 
-							adrenalineValue += 5;
+							adrenalineValue += 1 * cvBtAdrenalineKillRewardMultiplier;
 
 						// adrenaline based on monster health
-						adrenalineValue += clamp(curActor.startHealth / 10, 0, 350);
+						adrenalineValue += clamp(sqrt(curActor.startHealth) * cvBtAdrenalineKillRewardMultiplier, 0, 350);
 					}
 
-					if (cvBtKillRewardWhenActive || !btActive) // grant only when bullet time is not enabled
+					if (cvBtAdrenalineKillRewardWhenActive || !btActive) // grant only when bullet time is not enabled
 						curActor.attacker.GiveInventory("BtAdrenaline", adrenalineValue);
 
 					// second attacker is when a player hits an explosive barrel, and that kills the monster
