@@ -23,7 +23,7 @@ OptionMenu "BtOptions"
     StaticText "                         Default is 4"
     Slider "Adrenaline Regeneration Speed", "bt_adrenaline_regen_speed", 0, 35, 1
     StaticText "                         Default is 6"
-    Slider "Bullet Time Max Duration", "bt_adrenaline_max_duration", 15, 120, 15
+    Slider "Bullet Time Duration", "bt_adrenaline_duration", 15, 120, 15
     StaticText "                         Default is 15 seconds"
 
     StaticText " "
@@ -43,12 +43,13 @@ OptionMenu "BtOptions"
 
     StaticText "Mid-Air Multipliers", 1
     StaticText " "
-    Option "Enable Mid-Air Multipliers", "bt_enable_midair", "OnOff"
+    Option "Enable Mid-Air Multipliers", "bt_midair_enable", "OnOff"
     StaticText " "
-    Option "Enable Mid-Air only when jumping", "bt_enable_midair_jump_only", "OnOff"
+    Option "Enable Mid-Air only when jumping", "bt_midair_jump_only", "OnOff"
     StaticText " "
     Slider "Minimum distance to floor", "bt_midair_min_distance", 8, 128, 8
     StaticText "                 Default is 16"
+    StaticText " "
     Slider "World Multiplier", "bt_midair_multiplier", 2, 20, 1
     StaticText "                 Default is 12"
     Slider "Player Movement Multiplier", "bt_midair_player_movement_multiplier", 2, 20, 1
@@ -61,8 +62,12 @@ OptionMenu "BtOptions"
 
     StaticText "Berserk Multipliers", 1
     StaticText " "
-    Option "Enable Berserk Multipliers", "bt_enable_berserk_effect", "OnOff"
+    Option "Enable Berserk Multipliers", "bt_berserk_effect_enable", "OnOff"
     StaticText " "
+    Slider "Berserk Effect Duration", "bt_berserk_effect_duration", 15, 120, 15
+    StaticText "                         Default is 30 seconds"
+    Slider "World Multiplier", "bt_berserk_multiplier", 2, 20, 1
+    StaticText "                 Default is 6"
     Slider "Player Movement Multiplier", "bt_berserk_player_movement_multiplier", 2, 20, 1
     StaticText "                Default is 2"
     Slider "Player Weapons Multiplier", "bt_berserk_player_weapon_speed_multiplier", 2, 20, 1
@@ -74,6 +79,8 @@ OptionMenu "BtOptions"
 
     StaticText "Berkser + Mid-Air Multipliers", 1
     StaticText " "
+    Slider "World Multiplier", "bt_berserk_midair_multiplier", 2, 20, 1
+    StaticText "                 Default is 12"
     Slider "Player Movement Multiplier", "bt_berserk_midair_player_movement_multiplier", 2, 20, 1
     StaticText "                 Default is 12"
     Slider "Player Weapons Multiplier", "bt_berserk_midair_player_weapon_speed_multiplier", 2, 20, 1

@@ -20,7 +20,7 @@ class BulletTime : EventHandler
 	bool btMidAirActive;
 	bool btBerserkActive;
 	int btTic;
-	int btMaxDurationCounter;
+	int btDurationCounter;
 
 	int btMultiplier;
 	int btPlayerMovementMultiplier;
@@ -31,20 +31,23 @@ class BulletTime : EventHandler
 	int cvBtPlayerMovementMultiplier;
 	int cvBtPlayerWeaponSpeedMultiplier;
 
-	bool cvBtEnableMidAir;
+	bool cvBtMidAirEnable;
 	bool cvBtMidAirJumpOnly;
 	int cvBtMidAirMinDistance;
 	int cvBtMidAirMultiplier;
 	int cvBtMidAirPlayerMovementMultiplier;
 	int cvBtMidAirPlayerWeaponSpeedMultiplier;
 
-	bool cvBtEnableBerserkEffect;
+	bool cvBtBerserkEffectEnable;
+	int cvBtBerserkEffectDuration;
+	int cvBtBerserkMultiplier;
 	int cvBtBerserkPlayerMovementMultiplier;
 	int cvBtBerserkPlayerWeaponSpeedMultiplier;
+	int cvBtBerserkMidAirMultiplier;
 	int cvBtBerserkMidAirPlayerMovementMultiplier;
 	int cvBtBerserkMidAirPlayerWeaponSpeedMultiplier;
 
-	int cvBtAdrenalineMaxDurationMultiplier;
+	int cvBtAdrenalineDurationMultiplier;
 	int cvBtAdrenalineRegenSpeed;
 	int cvBtAdrenalineKillRewardMultiplier;
 	int cvBtAdrenalinePlayerDamageRewardMultiplier;
@@ -108,16 +111,19 @@ class BulletTime : EventHandler
 		cvBtPlayerMovementMultiplier = clamp(cv.GetCVar("bt_player_movement_multiplier").GetInt(), 2, 20);
 		cvBtPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
-		cvBtEnableMidAir = clamp(cv.GetCVar("bt_enable_midair").GetInt(), 0, 1);
-		cvBtMidAirJumpOnly = clamp(cv.GetCVar("bt_enable_midair_jump_only").GetInt(), 0, 1);
+		cvBtMidAirEnable = clamp(cv.GetCVar("bt_midair_enable").GetInt(), 0, 1);
+		cvBtMidAirJumpOnly = clamp(cv.GetCVar("bt_midair_jump_only").GetInt(), 0, 1);
 		cvBtMidAirMinDistance = clamp(cv.GetCVar("bt_midair_min_distance").GetInt(), 8, 128);
 		cvBtMidAirMultiplier = clamp(cv.GetCVar("bt_midair_multiplier").GetInt(), 2, 20);
 		cvBtMidAirPlayerMovementMultiplier = clamp(cv.GetCVar("bt_midair_player_movement_multiplier").GetInt(), 2, 20);
 		cvBtMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
-		cvBtEnableBerserkEffect = clamp(cv.GetCVar("bt_enable_berserk_effect").GetInt(), 0, 1);
+		cvBtBerserkEffectEnable = clamp(cv.GetCVar("bt_berserk_effect_enable").GetInt(), 0, 1);
+		cvBtBerserkEffectDuration = clamp(cv.GetCVar("bt_berserk_effect_duration").GetInt(), 15, 120);
+		cvBtBerserkMultiplier = clamp(cv.GetCVar("bt_berserk_multiplier").GetInt(), 2, 20);
 		cvBtBerserkPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt(), 2, 20);
 		cvBtBerserkPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt(), 2, 20);
+		cvBtBerserkMidAirMultiplier = clamp(cv.GetCVar("bt_berserk_midair_multiplier").GetInt(), 2, 20);
 		cvBtBerserkMidAirPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_movement_multiplier").GetInt(), 2, 20);
 		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
@@ -128,7 +134,7 @@ class BulletTime : EventHandler
 		cvBtAdrenalineKillRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_kill_reward_multiplier").GetInt(), 0, 10);
 		cvBtAdrenalinePlayerDamageRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_player_damage_reward_multiplier").GetInt(), 0, 10);
 		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
-		int cvBtAdrenalineMaxDuration = clamp(cv.GetCVar("bt_adrenaline_max_duration").GetInt(), 15, 120);
+		int cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 15, 120);
 
 		// initialize variables
 		btMultiplier = cvBtMultiplier;
@@ -138,8 +144,8 @@ class BulletTime : EventHandler
 		btBerserkActive = false;
 		btMidAirActive = false;
 
-		cvBtAdrenalineMaxDurationMultiplier = round(cvBtAdrenalineMaxDuration / 15);
-		btMaxDurationCounter = 1;
+		cvBtAdrenalineDurationMultiplier = round(cvBtAdrenalineDuration / 15);
+		btDurationCounter = 1;
 
 		// render variables
 		btEffectCounter = 0;
@@ -196,11 +202,11 @@ class BulletTime : EventHandler
 		if (btPlayerActivator)
 		{
 			// hack to allow bullet time to last more if set in cvar bt_max_duration
-			if (btMaxDurationCounter == cvBtAdrenalineMaxDurationMultiplier)
+			if (btDurationCounter == cvBtAdrenalineDurationMultiplier)
 			{
 				btPlayerActivator.TakeInventory("BtAdrenaline", 1);
 			}
-			btMaxDurationCounter = btMaxDurationCounter >= cvBtAdrenalineMaxDurationMultiplier ? 1 : btMaxDurationCounter + 1;
+			btDurationCounter = btDurationCounter >= cvBtAdrenalineDurationMultiplier ? 1 : btDurationCounter + 1;
 
 			// disables bullet time when ran out of adrenaline / player hit floor or step onto another actor
 			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1) || cvBtAdrenalineUnlimited;
@@ -238,8 +244,7 @@ class BulletTime : EventHandler
 		{
 			bool hasBerserker = p.mo.CountInv("BtBerserkerCounter") > 0;
 			double bulletTimeAmount = p.mo.CountInv("BtAdrenaline");
-			double bulletTimeBerserkAmount = p.mo.CountInv("BtBerserkerCounter") / 2;
-
+			double bulletTimeBerserkAmount = p.mo.CountInv("BtBerserkerCounter");
 			int screenWidth = Screen.GetWidth();
 			int screenHeight = Screen.GetHeight();
 
@@ -307,14 +312,14 @@ class BulletTime : EventHandler
 	{
 		bool doSlowGame = forceDoSlowGame;
 
-		bool stopMidAir = btActive && btMidAirActive && cvBtEnableMidAir && BtHelperFunctions.isPlayerSteppingFloor(btPlayerActivator);
+		bool stopMidAir = btActive && btMidAirActive && cvBtMidAirEnable && BtHelperFunctions.isPlayerSteppingFloor(btPlayerActivator);
 		if (btMidAirActive && stopMidAir) 
 		{
 			btMidAirActive = false;
 			doSlowGame = true;
 		}
 
-		bool isMidAir = btActive && (btMidAirActive || (cvBtEnableMidAir && !btMidAirActive && BtHelperFunctions.isPlayerMidAir(btPlayerActivator, cvBtMidAirMinDistance)));
+		bool isMidAir = btActive && (btMidAirActive || (cvBtMidAirEnable && !btMidAirActive && BtHelperFunctions.isPlayerMidAir(btPlayerActivator, cvBtMidAirMinDistance)));
 		if (!btMidAirActive && isMidAir)
 		{
 			Inventory btInv = btPlayerActivator.FindInventory("BtItemData");
@@ -334,28 +339,28 @@ class BulletTime : EventHandler
 			}
 		}
 
-		bool isBerserk = cvBtEnableBerserkEffect && btActive && btBerserkActive;
-		doSlowGame = (cvBtEnableMidAir || cvBtEnableBerserkEffect) && doSlowGame && btTic > 0;
+		bool isBerserk = cvBtBerserkEffectEnable && btActive && btBerserkActive;
+		doSlowGame = (cvBtMidAirEnable || cvBtBerserkEffectEnable) && doSlowGame && btTic > 0;
 		if (doSlowGame)
 		{
 			slowGame(false, false, true);
 		}
 
-		if (cvBtEnableMidAir && isMidAir && cvBtEnableBerserkEffect && isBerserk)
+		if (cvBtMidAirEnable && isMidAir && cvBtBerserkEffectEnable && isBerserk)
 		{
-			btMultiplier = cvBtMidAirMultiplier;
+			btMultiplier = cvBtBerserkMidAirMultiplier;
 			btPlayerMovementMultiplier = cvBtBerserkMidAirPlayerMovementMultiplier;
 			btPlayerWeaponSpeedMultiplier = cvBtBerserkMidAirPlayerWeaponSpeedMultiplier;
 		}
-		else if (cvBtEnableMidAir && isMidAir)
+		else if (cvBtMidAirEnable && isMidAir)
 		{
 			btMultiplier = cvBtMidAirMultiplier;
 			btPlayerMovementMultiplier = cvBtMidAirPlayerMovementMultiplier;
 			btPlayerWeaponSpeedMultiplier = cvBtMidAirPlayerWeaponSpeedMultiplier;
 		}
-		else if (cvBtEnableBerserkEffect && isBerserk)
+		else if (cvBtBerserkEffectEnable && isBerserk)
 		{
-			btMultiplier = cvBtMultiplier;
+			btMultiplier = cvBtBerserkMultiplier;
 			btPlayerMovementMultiplier = cvBtBerserkPlayerMovementMultiplier;
 			btPlayerWeaponSpeedMultiplier = cvBtBerserkPlayerWeaponSpeedMultiplier; 
 		}
@@ -473,7 +478,7 @@ class BulletTime : EventHandler
 					bool mightBeBerserker = powerUpNameLower.IndexOf("berserk") != -1 || powerUpNameLower.IndexOf("strength") != -1;
 
 					if (mightBeBerserker) {
-						int berserkerMaxTicEffect = 1050;
+						int berserkerMaxTicEffect = 35 * cvBtBerserkEffectDuration;
 						int firstPowerUpTic = powerUp.Args[1];
 						int currentPowerUpTic = powerUp.EffectTics;
 
@@ -483,14 +488,17 @@ class BulletTime : EventHandler
 
 							if (ticDiff < 0 && currentPowerUpTic <= berserkerMaxTicEffect)
 							{
-								// forces player adrenaline to be at 100% when berserker counter effect is on (red screen)
+								// forces player adrenaline to be at 100% when berserker counter effect is on
+								int counterMultiplier = cvBtBerserkEffectDuration / 15;
+								int berserkCounter = (berserkerMaxTicEffect - currentPowerUpTic) / counterMultiplier;
+								
 								doomPlayer.GiveInventory("BtAdrenaline", 1000);
-								doomPlayer.SetInventory("BtBerserkerCounter", berserkerMaxTicEffect - currentPowerUpTic);
+								doomPlayer.SetInventory("BtBerserkerCounter", berserkCounter);
 
-								if (cvBtEnableBerserkEffect)
+								if (cvBtBerserkEffectEnable)
 								{
 									bool oldBtBerserkActive = btBerserkActive;
-									btBerserkActive = (berserkerMaxTicEffect - currentPowerUpTic) > 0;
+									btBerserkActive = (berserkCounter) > 0;
 
 									if (oldBtBerserkActive != btBerserkActive)
 									{
@@ -930,6 +938,10 @@ class BulletTime : EventHandler
 			float soundPitch = applySlow ? BtHelperFunctions.calculateSoundPitch(btPlayerWeaponSpeedMultiplier) : 1.0;
 			for (int k = 0; k < 8; k++)
 				doomPlayer.A_SoundPitch(k, soundPitch);
+
+			if (cvBtHeartBeat && doomPlayer.CountInv("BtBerserkerCounter") > 0 && applySlow) {
+				doomPlayer.A_SoundPitch(16, 1.66);
+			} else if (cvBtHeartBeat && !applySlow) doomPlayer.A_SoundPitch(16, 1.0);
 			
 			// change current floor/last floor damage interval
 			if (!btItemData.actorInfo.lastSector)
