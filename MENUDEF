@@ -7,26 +7,50 @@ OptionMenu "BtOptions"
 {
     Title "Bullet Time X Options"
 
+    Submenu "Adrenaline System", "BtAdrenalineSystem"
+    Submenu "Time Multipliers", "BtTimeMultipliers"
+    Submenu "HUD and Display", "BtHudDisplay"
+    Submenu "Extra", "BtExtra"
+}
+
+OptionMenu "BtAdrenalineSystem"
+{
+    Title "Adrenaline System"
+
     StaticText " "
     StaticText "Changes will take effect on next level"
+
+    StaticText " "
     StaticText " "
 
-    StaticText "Adrenaline System", 1
+    Option "Unlimited Bullet Time", "bt_adrenaline_unlimited", "OnOff"
     StaticText " "
-    Option "Enable Unlimited Bullet Time", "bt_adrenaline_unlimited", "OnOff"
-    StaticText " "
-    Option "Enable Adrenaline Rewards during Bullet Time", "bt_adrenaline_kill_reward_when_active", "OnOff"
-    StaticText " "
-    Slider "Adrenaline Kill Reward Multiplier", "bt_adrenaline_kill_reward_multiplier", 0, 10, 1
-    StaticText "                         Default is 4"
-    Slider "Adrenaline Player Damage Reward Multiplier", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 1
-    StaticText "                         Default is 4"
-    Slider "Adrenaline Regeneration Speed", "bt_adrenaline_regen_speed", 0, 35, 1
-    StaticText "                         Default is 6"
     Slider "Bullet Time Duration", "bt_adrenaline_duration", 15, 120, 15
     StaticText "                         Default is 15 seconds"
 
     StaticText " "
+    Slider "Adrenaline Regeneration Speed", "bt_adrenaline_regen_speed", 0, 35, 1
+    StaticText "                Default is 6"
+
+    StaticText " "
+    StaticText " "
+    Option "Adrenaline Kill Rewards during Bullet Time", "bt_adrenaline_kill_reward_when_active", "OnOff"
+    StaticText " "
+
+    Slider "Adrenaline Kill Reward Multiplier", "bt_adrenaline_kill_reward_multiplier", 0, 10, 1
+    StaticText "                Default is 4"
+    Slider "Adrenaline Player Damage Reward Multiplier", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 1
+    StaticText "                Default is 4"
+}
+
+OptionMenu "BtTimeMultipliers"
+{
+    Title "Time Multipliers"
+
+    StaticText " "
+    StaticText "Changes will take effect on next level"
+    StaticText "    "
+
     StaticText " "
 
     StaticText "Default Multipliers", 1
@@ -48,7 +72,7 @@ OptionMenu "BtOptions"
     Option "Enable Mid-Air only when jumping", "bt_midair_jump_only", "OnOff"
     StaticText " "
     Slider "Minimum distance to floor", "bt_midair_min_distance", 8, 128, 8
-    StaticText "                 Default is 16"
+    StaticText "                       Default is 16 units"
     StaticText " "
     Slider "World Multiplier", "bt_midair_multiplier", 2, 20, 1
     StaticText "                 Default is 12"
@@ -66,8 +90,10 @@ OptionMenu "BtOptions"
     StaticText " "
     Slider "Berserk Effect Duration", "bt_berserk_effect_duration", 15, 120, 15
     StaticText "                         Default is 30 seconds"
+
+    StaticText " "
     Slider "World Multiplier", "bt_berserk_multiplier", 2, 20, 1
-    StaticText "                 Default is 6"
+    StaticText "                Default is 6"
     Slider "Player Movement Multiplier", "bt_berserk_player_movement_multiplier", 2, 20, 1
     StaticText "                Default is 2"
     Slider "Player Weapons Multiplier", "bt_berserk_player_weapon_speed_multiplier", 2, 20, 1
@@ -77,37 +103,41 @@ OptionMenu "BtOptions"
     StaticText " "
     StaticText " "
 
-    StaticText "Berkser + Mid-Air Multipliers", 1
+    StaticText "Berserk + Mid-Air Multipliers", 1
     StaticText " "
     Slider "World Multiplier", "bt_berserk_midair_multiplier", 2, 20, 1
-    StaticText "                 Default is 12"
+    StaticText "                 Default is 16"
     Slider "Player Movement Multiplier", "bt_berserk_midair_player_movement_multiplier", 2, 20, 1
-    StaticText "                 Default is 12"
+    StaticText "                 Default is 10"
     Slider "Player Weapons Multiplier", "bt_berserk_midair_player_weapon_speed_multiplier", 2, 20, 1
     StaticText "                Default is 5"
-
+        
     StaticText " "
     StaticText " "
+}
 
-    StaticText "UI", 1
+OptionMenu "BtHudDisplay"
+{
+    Title "HUD and Display"
+
     StaticText " "
 
     Slider "Adrenaline Counter Horizontal Offset", "bt_counter_horizontal_offset", 0, 100, 1
-    StaticText "                Default is 95"
+    StaticText "                 Default is 95"
 
     Slider "Adrenaline Counter Vertical Offset", "bt_counter_vertical_offset", 0, 100, 1
-    StaticText "                Default is 10"
+    StaticText "                 Default is 10"
 
     StaticText " "
     Slider "Adrenaline Counter Scale", "bt_counter_scale", 1, 10, 1
-    StaticText "                 Default is 7"
+    StaticText "                Default is 7"
     StaticText " "
+}
 
+OptionMenu "BtExtra"
+{
+    Title "Extra Options"
 
-    StaticText " "
-    StaticText " "
-
-    StaticText "Additional", 1
     StaticText " "
     Option "Enable Heartbeat Sound Effect", "bt_heartbeat", "OnOff"
 }
