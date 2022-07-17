@@ -710,8 +710,8 @@ class BulletTime : EventHandler
 		}
 		else if (!createNewActorInfo && applySlow)
 		{ // when bt is on, slow down velocity constantly
-			double velZZ = abs(curActor.vel.z - btItemData.actorInfo.lastVel.z);
-			bool newZ = velZZ > 1.1 && abs(curActor.vel.z) < 32766 && !fromMultiplierChange; // last
+			double accelZ = abs(curActor.vel.z - btItemData.actorInfo.lastVel.z);
+			bool hasExternalForceZ = accelZ > 1.1 && abs(curActor.vel.z) < 32766 && !fromMultiplierChange; // last
 
 			double velX = btItemData.actorInfo.lastVel.x != curActor.vel.x && curActor.vel.x != 0
 						? btItemData.actorInfo.lastVel.x + (curActor.vel.x - btItemData.actorInfo.lastVel.x) / btMultiplier
@@ -723,8 +723,8 @@ class BulletTime : EventHandler
 						? btItemData.actorInfo.lastVel.z + (curActor.vel.z - btItemData.actorInfo.lastVel.z) / (btMultiplier * btMultiplier)
 						: curActor.vel.z;
 
-			if (newZ) velZ *= btMultiplier;
-			if (velZZ > 32766) velZ = 0;
+			if (hasExternalForceZ) velZ *= btMultiplier;
+			if (accelZ > 32766) velZ = 0;
 
 			curActor.vel = (velX, velY, velZ);
 
@@ -812,41 +812,49 @@ class BulletTime : EventHandler
 			{ // check for change in movement speed constantly
 
 				// checks difference between last speed and current speed
-				double velXY = (doomPlayer.vel.x - btItemData.actorInfo.lastVel.x, doomPlayer.vel.y - btItemData.actorInfo.lastVel.y).length();
-				double velZZ = abs(doomPlayer.vel.z - btItemData.actorInfo.lastVel.z);
+				double accelXY = (doomPlayer.vel.x - btItemData.actorInfo.lastVel.x, doomPlayer.vel.y - btItemData.actorInfo.lastVel.y).length();
+				double accelZ = abs(doomPlayer.vel.z - btItemData.actorInfo.lastVel.z);
+
+				// when on air nearly all movements will be counted as external force
+				float minAcceleration = doomPlayer.vel.z != 0 ? 0.1 : 1.1;
 
 				// a hack here is applied to move 'smoother', because if doomguy gets slowdown ten times,
 				// he will slide A LOT. This prevents that. And also checks for external forces (explosion from rocket, etc.)
-				if (velXY > 1.1 && (btItemData.actorInfo.externalForce == 0 || btItemData.actorInfo.externalForce < velXY))
-					btItemData.actorInfo.externalForce = velXY;
-				else if (velXY > 1.1 && btItemData.actorInfo.externalForce > 1.1)
-					btItemData.actorInfo.externalForce += (velXY / btPlayerMovementMultiplier);
-				else if (btItemData.actorInfo.externalForce < 1.1)
+				if (accelXY > minAcceleration && (btItemData.actorInfo.externalForce == 0 || btItemData.actorInfo.externalForce < accelXY))
+					btItemData.actorInfo.externalForce = accelXY;
+				else if (accelXY > minAcceleration && btItemData.actorInfo.externalForce > minAcceleration)
+					btItemData.actorInfo.externalForce += (accelXY / btPlayerMovementMultiplier);
+				else if (accelXY == 0 || btItemData.actorInfo.externalForce < minAcceleration)
 					btItemData.actorInfo.externalForce = 0;
-				else if (btItemData.actorInfo.externalForce > 1.1)
-					btItemData.actorInfo.externalForce = btItemData.actorInfo.externalForce - velXY;
-
-				bool newZ = velZZ > 1.1; // doomguy received an external force or jumped, its vel z increased
+				else if (btItemData.actorInfo.externalForce > minAcceleration)
+					btItemData.actorInfo.externalForce = btItemData.actorInfo.externalForce - accelXY;
 
 				// when doomguy jumps a second time or when he receives an external velocity, reduce the last one so that
 				// the sum on this next one is not too big, otherwise he'll go flying
+				bool hasExternalForceZ = accelZ > 1.1; // doomguy received an external force or jumped, its vel z increased
 				bool didJump = (btItemData.actorInfo.playerJumpTic == 2 && doomPlayer.vel.z > btItemData.actorInfo.lastVel.z) || (btItemData.actorInfo.playerJumpTic == 1 && doomPlayer.vel.z > 0 && doomPlayer.vel.z > btItemData.actorInfo.lastVel.z);
-				if (didJump || newZ)
+				if (didJump || hasExternalForceZ)
 				{
 					btItemData.actorInfo.lastVel.z /= ((btPlayerMovementMultiplier * btPlayerMovementMultiplier) / 2);
 				} 
 
-				double velX = btItemData.actorInfo.lastVel.x != doomPlayer.vel.x && btItemData.actorInfo.externalForce > 1.1 && doomPlayer.vel.x != 0
-							? btItemData.actorInfo.lastVel.x + (doomPlayer.vel.x - btItemData.actorInfo.lastVel.x) / btPlayerMovementMultiplier
+				int xyMultiplier = btPlayerMovementMultiplier;
+				int zMultiplier = btPlayerMovementMultiplier * btPlayerMovementMultiplier;
+
+				// when acceleration is nearly constant, the slowdown will be higher on air (to prevent literal flying)
+				if (doomPlayer.vel.z != 0 && accelXY - btItemData.actorInfo.lastAccelXY < 0.01) xyMultiplier *= btPlayerMovementMultiplier;
+
+				double velX = btItemData.actorInfo.lastVel.x != doomPlayer.vel.x && btItemData.actorInfo.externalForce > minAcceleration && doomPlayer.vel.x != 0
+							? btItemData.actorInfo.lastVel.x + (doomPlayer.vel.x - btItemData.actorInfo.lastVel.x) / xyMultiplier
 							: doomPlayer.vel.x;
-				double velY = btItemData.actorInfo.lastVel.y != doomPlayer.vel.y && btItemData.actorInfo.externalForce > 1.1 && doomPlayer.vel.y != 0
-							? btItemData.actorInfo.lastVel.y + (doomPlayer.vel.y - btItemData.actorInfo.lastVel.y) / btPlayerMovementMultiplier
+				double velY = btItemData.actorInfo.lastVel.y != doomPlayer.vel.y && btItemData.actorInfo.externalForce > minAcceleration && doomPlayer.vel.y != 0
+							? btItemData.actorInfo.lastVel.y + (doomPlayer.vel.y - btItemData.actorInfo.lastVel.y) / xyMultiplier
 							: doomPlayer.vel.y;
 				double velZ = btItemData.actorInfo.lastVel.z != doomPlayer.vel.z && (doomPlayer.vel.z != 0 || (doomPlayer.floorz != doomPlayer.pos.z && doomPlayer.ceilingz != doomPlayer.pos.z + doomPlayer.height))
-							? btItemData.actorInfo.lastVel.z + (doomPlayer.vel.z - btItemData.actorInfo.lastVel.z) / (btPlayerMovementMultiplier * btPlayerMovementMultiplier)
+							? btItemData.actorInfo.lastVel.z + (doomPlayer.vel.z - btItemData.actorInfo.lastVel.z) / zMultiplier
 							: doomPlayer.vel.z;
 
-				if ((newZ && btItemData.actorInfo.playerJumpTic == 0) || didJump) 
+				if ((hasExternalForceZ && btItemData.actorInfo.playerJumpTic == 0) || didJump) 
 				{
 					velZ *= btPlayerMovementMultiplier;
 				}
@@ -854,8 +862,7 @@ class BulletTime : EventHandler
 				// hack: sets velZ to 0 when stepping other actors, but allows velZ when jumping, also constraints velZ below 1000 if a glitch happens to prevent int overflow
 				// this hack is done because when we step onto other actors, velZ is always > 0, because we are 'floating' above actors
 				bool playerIsSteppingActor = BtHelperFunctions.checkPlayerIsSteppingActor(doomPlayer); 
-				if ((playerIsSteppingActor && int(velZZ) != int(doomPlayer.jumpZ)) || velZZ > 1000) 
-					velZ = 0;
+				if ((playerIsSteppingActor && int(accelZ) != int(doomPlayer.jumpZ)) || accelZ > 1000)  velZ = 0;
 
 				doomPlayer.vel = (velX, velY, velZ);
 
@@ -865,6 +872,8 @@ class BulletTime : EventHandler
 								: doomPlayer.speed;
 
 				doomPlayer.speed = newSpeed;
+
+				btItemData.actorInfo.lastAccelXY = accelXY;
 			}
 
 			// Loop through all items to check for powerups

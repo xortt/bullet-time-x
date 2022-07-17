@@ -18,6 +18,7 @@ class BtActorInfo : Object
 	State lastState;
 	State lastWeaponState[201];
 	Vector3 lastVel;
+    float lastAccelXY;
 
     static BtActorInfo initialize()
     {
@@ -35,6 +36,7 @@ class BtActorInfo : Object
         actorInfo.isFloorMoving = false;
         actorInfo.playerJumpTic = 0;
         actorInfo.playerRef = null;
+        actorInfo.lastAccelXY = 0.0;
 
         return actorInfo;
     }
