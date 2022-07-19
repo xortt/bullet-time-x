@@ -18,6 +18,7 @@ class BtActorInfo : Object
 	State lastState;
 	State lastWeaponState[201];
 	Vector3 lastVel;
+	Vector3 lastOgVel;
     float lastAccelXY;
 
     static BtActorInfo initialize()

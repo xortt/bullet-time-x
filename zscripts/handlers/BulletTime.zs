@@ -713,13 +713,15 @@ class BulletTime : EventHandler
 			double accelZ = abs(curActor.vel.z - btItemData.actorInfo.lastVel.z);
 			bool hasExternalForceZ = accelZ > 1.1 && abs(curActor.vel.z) < 32766 && !fromMultiplierChange; // last
 
+			Vector3 lastOgVel = curActor.vel;
+
 			double velX = btItemData.actorInfo.lastVel.x != curActor.vel.x && curActor.vel.x != 0
 						? btItemData.actorInfo.lastVel.x + (curActor.vel.x - btItemData.actorInfo.lastVel.x) / btMultiplier
 						: curActor.vel.x;
 			double velY = btItemData.actorInfo.lastVel.y != curActor.vel.y && curActor.vel.y != 0
 						? btItemData.actorInfo.lastVel.y + (curActor.vel.y - btItemData.actorInfo.lastVel.y) / btMultiplier
 						: curActor.vel.y;
-			double velZ = btItemData.actorInfo.lastVel.z != curActor.vel.z && (curActor.vel.z != 0 || (curActor.floorz != curActor.pos.z && curActor.ceilingz != curActor.pos.z + curActor.height && velX != 0 && velY != 0))
+			double velZ = btItemData.actorInfo.lastVel.z != curActor.vel.z && (curActor.vel.z != 0 || (curActor.floorz != curActor.pos.z && curActor.ceilingz != curActor.pos.z + curActor.height && velX != 0 && velY != 0 && btItemData.actorInfo.lastOgVel.z != 0))
 						? btItemData.actorInfo.lastVel.z + (curActor.vel.z - btItemData.actorInfo.lastVel.z) / (btMultiplier * btMultiplier)
 						: curActor.vel.z;
 
@@ -734,6 +736,8 @@ class BulletTime : EventHandler
 			{ // when actor tics reached 1, slow it down by multiply the ticks again (or back to where it was when bt off)
 				curActor.tics = (applySlow) ? curActor.tics * btMultiplier : curActor.tics / btMultiplier;
 			}
+
+			btItemData.actorInfo.lastOgVel = lastOgVel;
 		}
 
 		// prevents any actor from reaching tic 0 due to float to int conversion
@@ -844,16 +848,19 @@ class BulletTime : EventHandler
 				// when acceleration is nearly constant, the slowdown will be higher on air (to prevent literal flying)
 				if (doomPlayer.vel.z != 0 && accelXY - btItemData.actorInfo.lastAccelXY < 0.01) xyMultiplier *= btPlayerMovementMultiplier;
 
+				Vector3 lastOgVel = doomPlayer.vel;
+
 				double velX = btItemData.actorInfo.lastVel.x != doomPlayer.vel.x && btItemData.actorInfo.externalForce > minAcceleration && doomPlayer.vel.x != 0
 							? btItemData.actorInfo.lastVel.x + (doomPlayer.vel.x - btItemData.actorInfo.lastVel.x) / xyMultiplier
 							: doomPlayer.vel.x;
 				double velY = btItemData.actorInfo.lastVel.y != doomPlayer.vel.y && btItemData.actorInfo.externalForce > minAcceleration && doomPlayer.vel.y != 0
 							? btItemData.actorInfo.lastVel.y + (doomPlayer.vel.y - btItemData.actorInfo.lastVel.y) / xyMultiplier
 							: doomPlayer.vel.y;
-				double velZ = btItemData.actorInfo.lastVel.z != doomPlayer.vel.z && (doomPlayer.vel.z != 0 || (doomPlayer.floorz != doomPlayer.pos.z && doomPlayer.ceilingz != doomPlayer.pos.z + doomPlayer.height))
+				double velZ = btItemData.actorInfo.lastVel.z != doomPlayer.vel.z && (doomPlayer.vel.z != 0 || (doomPlayer.floorz != doomPlayer.pos.z && doomPlayer.ceilingz != doomPlayer.pos.z + doomPlayer.height && btItemData.actorInfo.lastOgVel.z != 0))
 							? btItemData.actorInfo.lastVel.z + (doomPlayer.vel.z - btItemData.actorInfo.lastVel.z) / zMultiplier
 							: doomPlayer.vel.z;
 
+				// external forces or jumping shouldn't be that slow on Z
 				if ((hasExternalForceZ && btItemData.actorInfo.playerJumpTic == 0) || didJump) 
 				{
 					velZ *= btPlayerMovementMultiplier;
@@ -874,6 +881,7 @@ class BulletTime : EventHandler
 				doomPlayer.speed = newSpeed;
 
 				btItemData.actorInfo.lastAccelXY = accelXY;
+				btItemData.actorInfo.lastOgVel = lastOgVel;
 			}
 
 			// Loop through all items to check for powerups
