@@ -6,6 +6,9 @@ AddOptionMenu "OptionsMenu"
 OptionMenu "BtOptions"
 {
     Title "Bullet Time X Options"
+    
+    StaticText "Version 1.1.0", 1
+    StaticText " "
 
     Submenu "Adrenaline System", "BtAdrenalineSystem"
     Submenu "Time Multipliers", "BtTimeMultipliers"
@@ -137,6 +140,9 @@ OptionMenu "BtHudDisplay"
 OptionMenu "BtExtra"
 {
     Title "Extra Options"
+
+    StaticText " "
+    StaticText "Changes will take effect on next level"
 
     StaticText " "
     Option "Enable Heartbeat Sound Effect", "bt_heartbeat", "OnOff"
