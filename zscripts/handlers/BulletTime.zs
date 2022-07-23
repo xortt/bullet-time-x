@@ -54,6 +54,7 @@ class BulletTime : EventHandler
 	bool cvBtAdrenalineUnlimited;
 	bool cvBtAdrenalineKillRewardWhenActive;
 	bool cvBtHeartBeat;
+	bool cvBtHeartBeatBerserk;
 
 	// post tick bt controller
 	PostTickDummyController postTickController;
@@ -128,6 +129,7 @@ class BulletTime : EventHandler
 		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
 		cvBtHeartBeat = clamp(cv.GetCVar("bt_heartbeat").GetInt(), 0, 1);
+		cvBtHeartBeatBerserk = clamp(cv.GetCVar("bt_berserk_heartbeat").GetInt(), 0, 1);
 
 		cvBtAdrenalineUnlimited = clamp(cv.GetCVar("bt_adrenaline_unlimited").GetInt(), 0, 1);
 		cvBtAdrenalineKillRewardWhenActive = clamp(cv.GetCVar("bt_adrenaline_kill_reward_when_active").GetInt(), 0, 1);
@@ -956,9 +958,10 @@ class BulletTime : EventHandler
 			for (int k = 0; k < 8; k++)
 				doomPlayer.A_SoundPitch(k, soundPitch);
 
-			if (cvBtHeartBeat && doomPlayer.CountInv("BtBerserkerCounter") > 0 && applySlow) {
+			// accelerated heartbeat during berserk
+			if (cvBtHeartBeat && cvBtHeartBeatBerserk && doomPlayer.CountInv("BtBerserkerCounter") > 0 && applySlow) {
 				doomPlayer.A_SoundPitch(16, 1.66);
-			} else if (cvBtHeartBeat && !applySlow) doomPlayer.A_SoundPitch(16, 1.0);
+			} else if (cvBtHeartBeat && cvBtHeartBeatBerserk && !applySlow) doomPlayer.A_SoundPitch(16, 1.0);
 			
 			// change current floor/last floor damage interval
 			if (!btItemData.actorInfo.lastSector)

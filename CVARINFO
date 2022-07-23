@@ -30,3 +30,4 @@ server int bt_counter_vertical_offset = 10;
 server int bt_counter_scale = 7;
 
 server int bt_heartbeat = 1;
+server int bt_berserk_heartbeat = 1;
