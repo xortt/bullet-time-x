@@ -707,7 +707,9 @@ class BulletTime : EventHandler
 			btItemData.actorInfo.lastTics /= btMultiplier;
 			btItemData.actorInfo.lastVel /= btMultiplier;
 			curActor.vel = btItemData.actorInfo.lastVel;
-			curActor.tics = btItemData.actorInfo.lastTics;
+
+			if (curActor.tics != -1)
+				curActor.tics = btItemData.actorInfo.lastTics;
 		}
 		else if (!createNewActorInfo && applySlow)
 		{ // when bt is on, slow down velocity constantly
