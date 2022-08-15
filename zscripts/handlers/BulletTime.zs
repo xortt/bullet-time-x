@@ -221,7 +221,7 @@ class BulletTime : EventHandler
 		}
 
 		// keeps track of Bullet Time FX Render effect
-		if (btActive && btEffectCounter != 1) btEffectCounter = btEffectCounter == 0 ? 17 : btEffectCounter - 1;
+		if (btActive && btEffectCounter != 1) btEffectCounter = btEffectCounter == 0 ? 17 : clamp(btEffectCounter - 1, -8, 17);
 		else if (!btActive) 
 		{
 			if (btEffectCounter > 0) btEffectCounter = -8; 
@@ -659,9 +659,8 @@ class BulletTime : EventHandler
 
 		while (curActor = Actor(actorList.Next()))
 		{
-			bool notStaticActor = curActor.tics > 0;
+			bool notStaticActor = curActor.tics > 0 || (curActor.tics == -1 && curActor.vel.Length() > 0);
 			if (!notStaticActor) continue;
-
 			BtItemData btItemData = retrieveActorItemData(curActor);
 			
 			if (btItemData.monsterInfo == NULL && doUpdateMonsterInfoList)
@@ -740,6 +739,47 @@ class BulletTime : EventHandler
 			}
 
 			btItemData.actorInfo.lastOgVel = lastOgVel;
+		}
+
+		// Loop through all items to check for powerups
+		for (Inventory item = curActor.Inv; item != null; item = item.Inv)
+		{
+			Powerup powerUp = Powerup(item);
+			if (powerUp) // if successful and exists then multiply powerup time
+			{
+				int slowAlreadyApplied = powerUp.Args[0];
+				int firstPowerUpTic = powerUp.Args[1];
+				int currentPowerUpTic = powerUp.EffectTics;
+				int prevAndNewTicDifference = powerUp.Args[2];
+
+				if (firstPowerUpTic != 0) 
+				{
+					int ticDiff = prevAndNewTicDifference == 0 ? (firstPowerUpTic - currentPowerUpTic) : prevAndNewTicDifference;
+					
+					// hack that checks whether powerup counter is going positive (berserker mostly) or negative (others)
+					if (prevAndNewTicDifference == 0)
+					{
+						powerUp.Args[2] = ticDiff;	
+					}
+
+					// apply slow
+					if (slowAlreadyApplied == 0 && applySlow && ticDiff > 0)
+					{
+						powerUp.EffectTics *= btMultiplier;
+						powerUp.Args[0] = 1;
+					} 
+					else if (slowAlreadyApplied == 1 && !applySlow && ticDiff > 0)
+					{
+						powerUp.EffectTics /= btMultiplier;
+						powerUp.Args[0] = 0;
+					}
+				}
+				else
+				{
+					powerUp.Args[1] = currentPowerUpTic;
+				}
+
+			}
 		}
 
 		// prevents any actor from reaching tic 0 due to float to int conversion
