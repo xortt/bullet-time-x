@@ -812,7 +812,7 @@ class BulletTime : EventHandler
 		ThinkerIterator playerList = ThinkerIterator.Create("PlayerPawn", Thinker.STAT_PLAYER);
 
 		// supports -100 to 100 overlays of weapons
-		int weaponLayerAmount = 200;
+		int weaponLayerAmount = 200; // keep in mind when changing the number, also change static number length in BtActorInfo of lastWeaponTics and lastWeaponState
 		Array<Int> weaponLayers;
 		for (int i = -(int(weaponLayerAmount / 2)); i <= int(weaponLayerAmount / 2) - 1; i++) {
 			weaponLayers.Push(i);
@@ -988,7 +988,10 @@ class BulletTime : EventHandler
 					if (slowTicPlayer || !applySlow)
 					{
 						playerWp.tics = (applySlow) ? playerWp.tics * btPlayerWeaponSpeedMultiplier : playerWp.tics / btPlayerWeaponSpeedMultiplier;
-						if (playerWp.tics < 1) playerWp.tics = 1;
+						if (playerWp.tics < 1 || (playerWp.CurState == null && btItemData.actorInfo.lastWeaponState[j] != null)) {
+							playerWp.tics = 1;
+							playerWp.SetState(btItemData.actorInfo.lastWeaponState[j]); // prevents crash when curState is null
+						}// set tics > 0 to prevent state getting stuck / frozen
 					}
 					btItemData.actorInfo.lastWeaponState[j] = playerWp.CurState;
 					btItemData.actorInfo.lastWeaponTics[j] = playerWp.tics;
