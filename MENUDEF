@@ -7,7 +7,7 @@ OptionMenu "BtOptions"
 {
     Title "Bullet Time X Options"
     
-    StaticText "Version 1.1.1", 1
+    StaticText "Version 1.2.0", 1
     StaticText " "
 
     Submenu "Adrenaline System", "BtAdrenalineSystem"
