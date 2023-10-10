@@ -50,8 +50,8 @@ class BulletTime : EventHandler
 
 	int cvBtAdrenalineDurationMultiplier;
 	int cvBtAdrenalineRegenSpeed;
-	int cvBtAdrenalineKillRewardMultiplier;
-	int cvBtAdrenalinePlayerDamageRewardMultiplier;
+	float cvBtAdrenalineKillRewardMultiplier;
+	float cvBtAdrenalinePlayerDamageRewardMultiplier;
 	bool cvBtAdrenalineUnlimited;
 	bool cvBtAdrenalineKillRewardWhenActive;
 	bool cvBtHeartBeat;
@@ -135,8 +135,8 @@ class BulletTime : EventHandler
 
 		cvBtAdrenalineUnlimited = clamp(cv.GetCVar("bt_adrenaline_unlimited").GetInt(), 0, 1);
 		cvBtAdrenalineKillRewardWhenActive = clamp(cv.GetCVar("bt_adrenaline_kill_reward_when_active").GetInt(), 0, 1);
-		cvBtAdrenalineKillRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_kill_reward_multiplier").GetInt(), 0, 10);
-		cvBtAdrenalinePlayerDamageRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_player_damage_reward_multiplier").GetInt(), 0, 10);
+		cvBtAdrenalineKillRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_kill_reward_multiplier").GetFloat(), 0, 10);
+		cvBtAdrenalinePlayerDamageRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_player_damage_reward_multiplier").GetFloat(), 0, 10);
 		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
 		int cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 15, 120);
 

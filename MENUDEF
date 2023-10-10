@@ -40,9 +40,9 @@ OptionMenu "BtAdrenalineSystem"
     Option "Adrenaline Kill Rewards during Bullet Time", "bt_adrenaline_kill_reward_when_active", "OnOff"
     StaticText " "
 
-    Slider "Adrenaline Kill Reward Multiplier", "bt_adrenaline_kill_reward_multiplier", 0, 10, 1
+    Slider "Adrenaline Kill Reward Multiplier", "bt_adrenaline_kill_reward_multiplier", 0, 10, 0.2
     StaticText "                Default is 4"
-    Slider "Adrenaline Player Damage Reward Multiplier", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 1
+    Slider "Adrenaline Player Damage Reward Multiplier", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 0.2
     StaticText "                Default is 4"
 }
 
