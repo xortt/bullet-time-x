@@ -1,4 +1,4 @@
-class BtHelperFunctions
+class BtHelperFunctions play
 {
     static bool checkPlayerIsSteppingActor(PlayerPawn doomPlayer)
     {
@@ -63,5 +63,22 @@ class BtHelperFunctions
         float newMultiplier = Sqrt(multiplier);
         float newPitch = 1 / newMultiplier;
         return clamp(newPitch, 0.3, 1.0);
+    }
+
+    static void whitelistBtActor(Actor curActor)
+    {
+        Inventory btInv = curActor.FindInventory("BtItemData");
+        BtItemData btItemData;
+
+        if (btInv) 
+        {
+            btItemData = BtItemData(btInv);
+        } 
+        else 
+        {
+			btItemData = BtItemData(curActor.GiveInventoryType("BtItemData"));
+			btItemData.ChangeStatNum(10);
+        }
+        btItemData.whitelisted = true;
     }
 }

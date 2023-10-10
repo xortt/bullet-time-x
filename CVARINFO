@@ -1,6 +1,7 @@
 server int bt_multiplier = 4;
 server int bt_player_movement_multiplier = 4;
 server int bt_player_weapon_speed_multiplier = 3;
+server int bt_player_model_slowdown = 1;
 
 server int bt_midair_enable = 1;
 server int bt_midair_jump_only = 1;

@@ -64,6 +64,10 @@ OptionMenu "BtTimeMultipliers"
     StaticText "                Default is 4"
     Slider "Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 2, 20, 1
     StaticText "                Default is 3"
+    StaticText " "
+    Option "Enable Player thirdperson slowdown", "bt_player_model_slowdown", "OnOff"
+    StaticText "                 Default is On"
+    StaticText "      (Affects player thirdperson model only, uses Player Weapons Multiplier)"
     
     StaticText " "
     StaticText " "

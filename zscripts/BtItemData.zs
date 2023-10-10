@@ -11,4 +11,5 @@ class BtItemData : Inventory
 	BtMonsterInfo monsterInfo;
 	// int btActorId; // when bullet time is on, actor id
 	// int normalActorId; // global actor id (not bullet time)
+	bool whitelisted;
 }

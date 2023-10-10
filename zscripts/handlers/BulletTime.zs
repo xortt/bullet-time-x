@@ -30,6 +30,7 @@ class BulletTime : EventHandler
 	int cvBtMultiplier;
 	int cvBtPlayerMovementMultiplier;
 	int cvBtPlayerWeaponSpeedMultiplier;
+	bool cvBtPlayerModelSlowdown;
 
 	bool cvBtMidAirEnable;
 	bool cvBtMidAirJumpOnly;
@@ -111,6 +112,7 @@ class BulletTime : EventHandler
 		cvBtMultiplier = clamp(cv.GetCVar("bt_multiplier").GetInt(), 2, 20);
 		cvBtPlayerMovementMultiplier = clamp(cv.GetCVar("bt_player_movement_multiplier").GetInt(), 2, 20);
 		cvBtPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt(), 2, 20);
+		cvBtPlayerModelSlowdown = clamp(cv.GetCVar("bt_player_model_slowdown").GetInt(), 0, 1);
 
 		cvBtMidAirEnable = clamp(cv.GetCVar("bt_midair_enable").GetInt(), 0, 1);
 		cvBtMidAirJumpOnly = clamp(cv.GetCVar("bt_midair_jump_only").GetInt(), 0, 1);
@@ -668,7 +670,7 @@ class BulletTime : EventHandler
 				updateBtMonsterInfoList(curActor, btItemData);
 			}
 
-			if (handleSlowActor)
+			if (handleSlowActor && !btItemData.whitelisted)
 			{
 				slowActor(curActor, applySlow, btItemData, fromMultiplierChange);
 			}
@@ -850,11 +852,17 @@ class BulletTime : EventHandler
 				doomPlayer.speed = applySlow ? doomPlayer.speed / btPlayerMovementMultiplier : btItemData.actorInfo.lastSpeed * btPlayerMovementMultiplier;
 				doomPlayer.vel = applySlow ? doomPlayer.vel / btPlayerMovementMultiplier : btItemData.actorInfo.lastVel * btPlayerMovementMultiplier;
 				doomPlayer.viewBob = applySlow ? doomPlayer.viewBob / btPlayerMovementMultiplier : doomPlayer.viewBob * btPlayerMovementMultiplier;
+				if (doomPlayer.tics != -1 && cvBtPlayerModelSlowdown)
+					doomPlayer.tics = applySlow ? doomPlayer.tics * btPlayerWeaponSpeedMultiplier : doomPlayer.tics / btPlayerWeaponSpeedMultiplier;
 			}
 			else if (applySlow && fromMultiplierChange) // when multiplier changes, speed is returned back to normal so we have to change back tics and vel to where it was when bt is on
 			{
+				btItemData.actorInfo.lastTics /= btPlayerWeaponSpeedMultiplier;
 				btItemData.actorInfo.lastVel /= btMultiplier;
 				doomPlayer.vel = btItemData.actorInfo.lastVel;
+
+				if (doomPlayer.tics != -1 && cvBtPlayerModelSlowdown)
+					doomPlayer.tics = btItemData.actorInfo.lastTics;
 			}
 			else if (!createNewPlayerInfo && applySlow)
 			{ // check for change in movement speed constantly
@@ -924,6 +932,15 @@ class BulletTime : EventHandler
 
 				doomPlayer.speed = newSpeed;
 
+				// when actor tics reached 1, slow it down by multiply the ticks again (or back to where it was when bt off)
+				if (btItemData.actorInfo.lastTics == 1 &&
+					btItemData.actorInfo.lastState != doomPlayer.CurState &&
+					doomPlayer.tics != -1 &&
+					cvBtPlayerModelSlowdown)
+				{ 
+					doomPlayer.tics = (applySlow) ? doomPlayer.tics * btPlayerWeaponSpeedMultiplier : doomPlayer.tics / btPlayerWeaponSpeedMultiplier;
+				}
+
 				btItemData.actorInfo.lastAccelXY = accelXY;
 				btItemData.actorInfo.lastOgVel = lastOgVel;
 			}
@@ -977,7 +994,7 @@ class BulletTime : EventHandler
 				{
 					if (applySlow && fromMultiplierChange)
 					{
-						btItemData.actorInfo.lastWeaponTics[j] /= btMultiplier;
+						btItemData.actorInfo.lastWeaponTics[j] /= btPlayerWeaponSpeedMultiplier;
 						playerWp.tics = btItemData.actorInfo.lastWeaponTics[j];
 					}
 
@@ -1025,6 +1042,8 @@ class BulletTime : EventHandler
 					: doomPlayer.CurSector.damageinterval;
 			}
 
+			btItemData.actorInfo.lastState = doomPlayer.CurState;
+			btItemData.actorInfo.lastTics = doomPlayer.tics;
 			btItemData.actorInfo.lastVel = doomPlayer.vel;
 			btItemData.actorInfo.lastSpeed = doomPlayer.speed;
 			btItemData.actorInfo.lastSector = doomplayer.CurSector;
