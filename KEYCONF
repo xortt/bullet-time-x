@@ -1,5 +1,5 @@
 addkeysection "Bullet Time X" BulletTimeActions
 
 addmenukey "Start/Stop Bullet Time" bullettime
-alias bullettime ""
+alias bullettime "netevent bt_activate"
 defaultbind b bullettime

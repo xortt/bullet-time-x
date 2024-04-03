@@ -12,6 +12,7 @@ class BtActorInfo : Object
 	int lastHealth;
     int powerUpCount;
 	int playerJumpTic; // the 2nd tic player jumps, the 1st one Z velocity is applied, 0 is no jumping
+    int playerJumpHoldTic; // the tic player is holding jump key
 	Actor actorRef;
     PlayerPawn playerRef;
 	Sector lastSector;

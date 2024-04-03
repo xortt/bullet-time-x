@@ -6,9 +6,9 @@ server int bt_player_model_slowdown = 1;
 server int bt_midair_enable = 1;
 server int bt_midair_jump_only = 1;
 server int bt_midair_min_distance = 16;
-server int bt_midair_multiplier = 12;
-server int bt_midair_player_movement_multiplier = 12;
-server int bt_midair_player_weapon_speed_multiplier = 7;
+server int bt_midair_multiplier = 14;
+server int bt_midair_player_movement_multiplier = 14;
+server int bt_midair_player_weapon_speed_multiplier = 6;
 
 server int bt_berserk_effect_enable = 1;
 server int bt_berserk_effect_duration = 30;
@@ -31,4 +31,11 @@ server int bt_counter_vertical_offset = 10;
 server int bt_counter_scale = 7;
 
 server int bt_heartbeat = 1;
-server int bt_berserk_heartbeat = 1;
+
+server int bt_shader_white_blink_enable = 1;
+server int bt_shader_blur_enable = 1;
+
+server float bt_music_volume = 0.15;
+
+server int bt_jump_hold_enable = 0;
+server int bt_jump_hold_tics = 7;

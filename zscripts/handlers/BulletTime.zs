@@ -13,12 +13,14 @@ class BulletTime : EventHandler
 	// render data (hud, fx)
 	TextureID btSandClock;
 	int btEffectCounter;
+	int btBlurEffectCounter;
 	bool btEffectInvulnerability;
 
 	// main bullet time variables
 	bool btActive;
 	bool btMidAirActive;
 	bool btBerserkActive;
+	bool btConsoleActive; // only used when player activates bt through console cmd
 	int btTic;
 	int btDurationCounter;
 
@@ -50,12 +52,16 @@ class BulletTime : EventHandler
 
 	int cvBtAdrenalineDurationMultiplier;
 	int cvBtAdrenalineRegenSpeed;
+	int cvBtJumpHoldTics;
 	float cvBtAdrenalineKillRewardMultiplier;
 	float cvBtAdrenalinePlayerDamageRewardMultiplier;
+	float cvBtMusicVolume;
 	bool cvBtAdrenalineUnlimited;
 	bool cvBtAdrenalineKillRewardWhenActive;
 	bool cvBtHeartBeat;
-	bool cvBtHeartBeatBerserk;
+	bool cvBtJumpHold;
+	bool cvBtShaderWhiteBlink;
+	bool cvBtShaderBlur;
 
 	// post tick bt controller
 	PostTickDummyController postTickController;
@@ -65,26 +71,29 @@ class BulletTime : EventHandler
 		if (e.Type == InputEvent.Type_KeyDown)
 			sendNetworkEvent("BtKeyDown", e.KeyScan);
 
+		if (e.Type == InputEvent.Type_KeyUp)
+			sendNetworkEvent("BtKeyUp", e.KeyScan);
+
 		return false;
 	}
 
 	override void NetworkProcess(ConsoleEvent e)
 	{
-		int keys[4];
-		[keys[0], keys[1]] = Bindings.GetKeysForCommand("BulletTime");
-		[keys[2], keys[3]] = Bindings.GetKeysForCommand("+jump");
-		if (e.Name == "BtKeyDown")
+		int keys[2];
+		[keys[0], keys[1]] = Bindings.GetKeysForCommand("+jump");
+		if (e.Name == "BtKeyDown" || e.Name == "bt_activate")
 		{
 			// bullet time key
-			if ((keys[0] && keys[0] == e.Args[0]) || (keys[1] && keys[1] == e.Args[0]))
+			if (e.Name == "bt_activate")
 			{
 				let player = PlayerPawn(players[e.player].mo);
+				btConsoleActive = true; // slow down will happen on the next tic
 
-				doSlowTime(!btActive, player);
+				if (btPlayerActivator == null) btPlayerActivator = player;
 			}
 
 			// jumping key
-			if ((keys[2] && keys[2] == e.Args[0]) || (keys[3] && keys[3] == e.Args[0]))
+			if (cvBtJumpHold && (keys[0] && keys[0] == e.Args[0]) || (keys[1] && keys[1] == e.Args[0]))
 			{
 				let player = PlayerPawn(players[e.player].mo);
 				Inventory btInv = player.FindInventory("BtItemData");
@@ -100,6 +109,26 @@ class BulletTime : EventHandler
 				{
 					btItemData.adrenalinePlayerInfo.playerJumpTic = 2;
 					btItemData.adrenalinePlayerInfo.playerJumped = true;
+
+					if (!btActive) btItemData.adrenalinePlayerInfo.playerJumpHoldTic = 1;
+				}
+			}
+		}
+
+		if (e.Name == "BtKeyUp")
+		{
+			// jumping key
+			if (cvBtJumpHold && (keys[0] && keys[0] == e.Args[0]) || (keys[1] && keys[1] == e.Args[0]))
+			{
+				let player = PlayerPawn(players[e.player].mo);
+				Inventory btInv = player.FindInventory("BtItemData");
+				BtItemData btItemData = btInv == NULL
+						? BtItemData(player.GiveInventoryType("BtItemData"))
+						: BtItemData(btInv);
+
+				if (btItemData.adrenalinePlayerInfo != NULL)
+				{
+					btItemData.adrenalinePlayerInfo.playerJumpHoldTic = 0;
 				}
 			}
 		}
@@ -131,7 +160,14 @@ class BulletTime : EventHandler
 		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
 		cvBtHeartBeat = clamp(cv.GetCVar("bt_heartbeat").GetInt(), 0, 1);
-		cvBtHeartBeatBerserk = clamp(cv.GetCVar("bt_berserk_heartbeat").GetInt(), 0, 1);
+
+		cvBtShaderWhiteBlink = clamp(cv.GetCVar("bt_shader_white_blink_enable").GetInt(), 0, 1);
+		cvBtShaderBlur = clamp(cv.GetCVar("bt_shader_blur_enable").GetInt(), 0, 1);
+
+		cvBtJumpHold = clamp(cv.GetCVar("bt_jump_hold_enable").GetInt(), 0, 1);
+		cvBtJumpHoldTics = clamp(cv.GetCVar("bt_jump_hold_tics").GetInt(), 1, 35);
+
+		cvBtMusicVolume = clamp(cv.GetCVar("bt_music_volume").GetFloat(), 0.0, 1.0);
 
 		cvBtAdrenalineUnlimited = clamp(cv.GetCVar("bt_adrenaline_unlimited").GetInt(), 0, 1);
 		cvBtAdrenalineKillRewardWhenActive = clamp(cv.GetCVar("bt_adrenaline_kill_reward_when_active").GetInt(), 0, 1);
@@ -179,6 +215,12 @@ class BulletTime : EventHandler
 
 	override void WorldTick()
 	{
+		if (btConsoleActive)
+		{
+			btConsoleActive = false;
+			doSlowTime(!btActive, btPlayerActivator);
+		}
+
 		bool doUpdateMonsterInfoList = btOneSecondTick == 35;
 		bool forceDoSlowGame = false;
 
@@ -229,6 +271,9 @@ class BulletTime : EventHandler
 			if (btEffectCounter > 0) btEffectCounter = -8; 
 			else if (btEffectCounter < 0) btEffectCounter += 1;
 		}
+
+		// keeps track of Bullet Time FX Blur effect
+		if (cvBtShaderBlur && btBlurEffectCounter > 0) btBlurEffectCounter--;
 	}
 
 	/**
@@ -239,9 +284,30 @@ class BulletTime : EventHandler
         PlayerInfo p = players[consoleplayer];
 
 		// enable shader that gives the white blink screen when enabling bullet time
-		Shader.SetEnabled(players[consoleplayer], "btshader", true);
-        Shader.SetUniform1f(players[consoleplayer], "btshader", "btEffectCounter", btEffectCounter);
-        Shader.SetUniform1i(players[consoleplayer], "btshader", "btEffectInvulnerability", btEffectInvulnerability);
+		if (cvBtShaderWhiteBlink) 
+		{
+			Shader.SetEnabled(players[consoleplayer], "btshader", true);
+			Shader.SetUniform1f(players[consoleplayer], "btshader", "btEffectCounter", btEffectCounter);
+			Shader.SetUniform1i(players[consoleplayer], "btshader", "btEffectInvulnerability", btEffectInvulnerability);
+		}
+
+		// enable shader that gives the blur effect when enabling bullet time
+		if (cvBtShaderBlur)
+		{
+			int samples = 10;
+			int distanceSteps = 3;
+
+			double feedbackLoopEffectCounter = double(abs(btBlurEffectCounter * distanceSteps));
+
+			vector2 distance = (feedbackLoopEffectCounter / screen.getwidth(), feedbackLoopEffectCounter / screen.getheight());
+			int copies = feedbackLoopEffectCounter != 0 ? abs(feedbackLoopEffectCounter) : 1;
+			double increment = 1. / copies;
+
+			Shader.SetEnabled(players[consoleplayer], "btloop", true);
+			Shader.SetUniform2f(players[consoleplayer], "btloop", "steps", distance * increment);
+			Shader.SetUniform1i(players[consoleplayer], "btloop", "samples", copies);
+			Shader.SetUniform1f(players[consoleplayer], "btloop", "increment", increment);
+		}
 		
 		// shader calculations for drawing sand clocks
 		if (!cvBtAdrenalineUnlimited)
@@ -335,6 +401,8 @@ class BulletTime : EventHandler
 			{
 				btMidAirActive = true;
 				doSlowGame = true;
+				if (cvBtShaderBlur) btBlurEffectCounter = btBlurEffectCounter > 0 ? btBlurEffectCounter : 17;
+				btEffectCounter = btEffectCounter == 1 ? 17 : btEffectCounter;
 			}
 			else
 			{
@@ -394,7 +462,9 @@ class BulletTime : EventHandler
 		if (applySlow && (hasBulletTimeCounter || player.pos.z != player.floorz) && player.health > 0)
 		{
 			btTic = 0;
-			player.A_StartSound("SLWSTART",  0, CHANF_LOCAL, 1.0, ATTN_NONE, 1.0);
+			if (cvBtShaderBlur) btBlurEffectCounter = btBlurEffectCounter > 0 ? btBlurEffectCounter : 17;
+
+			player.A_StartSound("SLWSTART",  15, CHANF_UI, 1.0, ATTN_NONE, 1.0);
 			if (cvBtHeartBeat) player.A_StartSound("SLWLOOP",  16, CHANF_LOOP, 1.0, ATTN_NONE, 1.0);
 
 			postTickController = PostTickDummyController(player.Spawn("PostTickDummyController"));
@@ -402,6 +472,11 @@ class BulletTime : EventHandler
 			postTickController.btPlayerMovementMultiplier = btPlayerMovementMultiplier;
 			postTickController.btPlayerWeaponSpeedMultiplier = btPlayerWeaponSpeedMultiplier;
 			postTickController.applySlow = true;
+
+			// get music vol cvar value
+			float musicVol = clamp(CVar.GetCVar("snd_musicvolume").GetFloat(), 0.0, 1.0);
+			float newVolume = musicVol * cvBtMusicVolume;
+			SetMusicVolume(newVolume);
 			
 			btPlayerActivator = player;
 			btActive = true;
@@ -411,10 +486,11 @@ class BulletTime : EventHandler
 		{ // stops bullet time
 			btTic = 0;
 			slowGame(false, false, false);
+			SetMusicVolume(1);
 
 			if (player) 
 			{
-				player.A_StartSound("SLWSTOP",  0, CHANF_LOCAL, 1.0, ATTN_NONE, 1.0);
+				player.A_StartSound("SLWSTOP",  15, CHANF_UI, 1.0, ATTN_NONE, 1.0);
 				if (cvBtHeartBeat) player.A_StopSound(16);
 			}
 
@@ -456,6 +532,20 @@ class BulletTime : EventHandler
 
 				btItemData.adrenalinePlayerInfo.playerRef = doomPlayer;
 				btItemData.adrenalinePlayerInfo.lastHealth = doomPlayer.health;
+				btItemData.adrenalinePlayerInfo.playerJumpHoldTic = 0;
+			}
+
+			// handle jumping hold tic
+			if (cvBtJumpHold && !btActive)
+			{
+				if (btItemData.adrenalinePlayerInfo.playerJumpHoldTic == cvBtJumpHoldTics)
+				{
+					btItemData.adrenalinePlayerInfo.playerJumpHoldTic = 0;
+
+					btConsoleActive = true;
+					if (btPlayerActivator == null) btPlayerActivator = doomPlayer;
+				}
+				else if (btItemData.adrenalinePlayerInfo.playerJumpHoldTic > 0) btItemData.adrenalinePlayerInfo.playerJumpHoldTic++;
 			}
 
 			// gives adrenaline based on player last health and current health
@@ -791,14 +881,10 @@ class BulletTime : EventHandler
 
 		// Slow sound pitch
 		float soundPitch = applySlow ? BtHelperFunctions.calculateSoundPitch(btMultiplier) : 1.0;
-		// (this if check is mostly for optimization purposes, +40fps nice)
-		if (curActor.isActorPlayingSound(0)) // checks if actor is making any sound and change it's pitch accordingly to all channels
+		for (int k = 1; k < 5; k++)
 		{
-			for (int k = 0; k < 8; k++)
-			{
-				curActor.A_SoundPitch(k, soundPitch);
-			} 
-		}
+			curActor.A_SoundPitch(k, soundPitch);
+		} 
 		
 		// save data for next tic when bt on
 		btItemData.actorInfo.lastState = curActor.CurState;
@@ -852,6 +938,7 @@ class BulletTime : EventHandler
 				doomPlayer.speed = applySlow ? doomPlayer.speed / btPlayerMovementMultiplier : btItemData.actorInfo.lastSpeed * btPlayerMovementMultiplier;
 				doomPlayer.vel = applySlow ? doomPlayer.vel / btPlayerMovementMultiplier : btItemData.actorInfo.lastVel * btPlayerMovementMultiplier;
 				doomPlayer.viewBob = applySlow ? doomPlayer.viewBob / btPlayerMovementMultiplier : doomPlayer.viewBob * btPlayerMovementMultiplier;
+
 				if (doomPlayer.tics != -1 && cvBtPlayerModelSlowdown)
 					doomPlayer.tics = applySlow ? doomPlayer.tics * btPlayerWeaponSpeedMultiplier : doomPlayer.tics / btPlayerWeaponSpeedMultiplier;
 			}
@@ -1019,11 +1106,6 @@ class BulletTime : EventHandler
 			float soundPitch = applySlow ? BtHelperFunctions.calculateSoundPitch(btPlayerWeaponSpeedMultiplier) : 1.0;
 			for (int k = 0; k < 8; k++)
 				doomPlayer.A_SoundPitch(k, soundPitch);
-
-			// accelerated heartbeat during berserk
-			if (cvBtHeartBeat && cvBtHeartBeatBerserk && doomPlayer.CountInv("BtBerserkerCounter") > 0 && applySlow) {
-				doomPlayer.A_SoundPitch(16, 1.66);
-			} else if (cvBtHeartBeat && cvBtHeartBeatBerserk && !applySlow) doomPlayer.A_SoundPitch(16, 1.0);
 			
 			// change current floor/last floor damage interval
 			if (!btItemData.actorInfo.lastSector)

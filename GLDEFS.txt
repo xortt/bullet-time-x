@@ -5,3 +5,12 @@ HardwareShader PostProcess Scene
 	Uniform int btEffectCounter
 	Uniform int btEffectInvulnerability
 }
+
+HardwareShader PostProcess beforebloom
+{
+	Name "btloop"
+	Shader "shaders/btloop.fp" 330
+	Uniform vec2 steps
+	Uniform int samples
+	Uniform float increment
+}
