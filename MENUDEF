@@ -165,4 +165,7 @@ OptionMenu "BtExtra"
     StaticText " "
     Slider "Music volume during Bullet Time", "bt_music_volume", 0.00, 1.00, 0.05, 2
     StaticText "                   Default is 0.15"
+
+    StaticText " "
+    Option "Hide Bullet Time activation message", "bt_hide_message", "OnOff"
 }

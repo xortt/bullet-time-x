@@ -59,6 +59,7 @@ class BulletTime : EventHandler
 	bool cvBtAdrenalineUnlimited;
 	bool cvBtAdrenalineKillRewardWhenActive;
 	bool cvBtHeartBeat;
+	bool cvBtHideMessage;
 	bool cvBtJumpHold;
 	bool cvBtShaderWhiteBlink;
 	bool cvBtShaderBlur;
@@ -160,6 +161,8 @@ class BulletTime : EventHandler
 		cvBtBerserkMidAirPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_midair_player_weapon_speed_multiplier").GetInt(), 2, 20);
 
 		cvBtHeartBeat = clamp(cv.GetCVar("bt_heartbeat").GetInt(), 0, 1);
+
+		cvBtHideMessage = clamp(cv.GetCVar("bt_hide_message").GetInt(), 0, 1);
 
 		cvBtShaderWhiteBlink = clamp(cv.GetCVar("bt_shader_white_blink_enable").GetInt(), 0, 1);
 		cvBtShaderBlur = clamp(cv.GetCVar("bt_shader_blur_enable").GetInt(), 0, 1);
@@ -480,7 +483,7 @@ class BulletTime : EventHandler
 			
 			btPlayerActivator = player;
 			btActive = true;
-			console.printf("Bullet Time!");
+			if (!cvBtHideMessage) console.printf("Bullet Time!");
 		} 
 		else if (btActive)
 		{ // stops bullet time

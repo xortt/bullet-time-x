@@ -39,3 +39,5 @@ server float bt_music_volume = 0.15;
 
 server int bt_jump_hold_enable = 0;
 server int bt_jump_hold_tics = 7;
+
+server int bt_hide_message = 0;
