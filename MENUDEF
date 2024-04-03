@@ -28,7 +28,7 @@ OptionMenu "BtAdrenalineSystem"
 
     Option "Unlimited Bullet Time", "bt_adrenaline_unlimited", "OnOff"
     StaticText " "
-    Slider "Bullet Time Duration", "bt_adrenaline_duration", 15, 120, 15
+    Slider "Bullet Time Duration", "bt_adrenaline_duration", 5, 120, 5
     StaticText "                         Default is 15 seconds"
 
     StaticText " "

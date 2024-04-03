@@ -174,7 +174,7 @@ class BulletTime : EventHandler
 		cvBtAdrenalineKillRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_kill_reward_multiplier").GetFloat(), 0, 10);
 		cvBtAdrenalinePlayerDamageRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_player_damage_reward_multiplier").GetFloat(), 0, 10);
 		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
-		int cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 15, 120);
+		int cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 5, 120);
 
 		// initialize variables
 		btMultiplier = cvBtMultiplier;
@@ -184,7 +184,7 @@ class BulletTime : EventHandler
 		btBerserkActive = false;
 		btMidAirActive = false;
 
-		cvBtAdrenalineDurationMultiplier = round(cvBtAdrenalineDuration / 15);
+		cvBtAdrenalineDurationMultiplier = clamp(round(cvBtAdrenalineDuration / 5), 1, 24); // 5 is the min duration (in secs)
 		btDurationCounter = 1;
 
 		// render variables
@@ -250,7 +250,7 @@ class BulletTime : EventHandler
 			// hack to allow bullet time to last more if set in cvar bt_max_duration
 			if (btDurationCounter == cvBtAdrenalineDurationMultiplier)
 			{
-				btPlayerActivator.TakeInventory("BtAdrenaline", 1);
+				btPlayerActivator.TakeInventory("BtAdrenaline", 3);
 			}
 			btDurationCounter = btDurationCounter >= cvBtAdrenalineDurationMultiplier ? 1 : btDurationCounter + 1;
 
