@@ -2,7 +2,7 @@ class BtActorInfo : Object
 {
 	bool isFloorMoving;
 	bool nextTicDelete;
-    bool playerJumped; // should reset to 0 when pos.z == floorz
+    bool playerDodged; // should reset to 0 when pos.z == floorz. 
 	double externalForce;
     double lastSpeed; // last speed, with applied slowdown
     double newChangedSpeed; // new speed with no slowdown
@@ -11,8 +11,7 @@ class BtActorInfo : Object
 	int lastWeaponTics[201];
 	int lastHealth;
     int powerUpCount;
-	int playerJumpTic; // the 2nd tic player jumps, the 1st one Z velocity is applied, 0 is no jumping
-    int playerJumpHoldTic; // the tic player is holding jump key
+	int playerJumpTic; // the 2nd tic player jumps, the 1st one Z velocity is applied, 0 is no jumping (used to keep accurate vel Z during bullet time)
 	Actor actorRef;
     PlayerPawn playerRef;
 	Sector lastSector;

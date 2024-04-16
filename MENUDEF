@@ -72,20 +72,15 @@ OptionMenu "BtTimeMultipliers"
     StaticText " "
     StaticText " "
 
-    StaticText "Mid-Air Multipliers", 1
+    StaticText "Dodge Multipliers", 1
     StaticText " "
-    Option "Enable Mid-Air Multipliers", "bt_midair_enable", "OnOff"
+    Option "Enable Dodge Multipliers", "bt_dodge_enable", "OnOff"
     StaticText " "
-    Option "Enable Mid-Air only when jumping", "bt_midair_jump_only", "OnOff"
-    StaticText " "
-    Slider "Minimum distance to floor", "bt_midair_min_distance", 8, 128, 8
-    StaticText "                       Default is 16 units"
-    StaticText " "
-    Slider "World Multiplier", "bt_midair_multiplier", 2, 20, 1
+    Slider "World Multiplier", "bt_dodge_multiplier", 2, 20, 1
     StaticText "                 Default is 14"
-    Slider "Player Movement Multiplier", "bt_midair_player_movement_multiplier", 2, 20, 1
+    Slider "Player Movement Multiplier", "bt_dodge_player_movement_multiplier", 2, 20, 1
     StaticText "                 Default is 14"
-    Slider "Player Weapons Multiplier", "bt_midair_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Player Weapons Multiplier", "bt_dodge_player_weapon_speed_multiplier", 2, 20, 1
     StaticText "                Default is 6"
 
     StaticText " "
@@ -110,13 +105,13 @@ OptionMenu "BtTimeMultipliers"
     StaticText " "
     StaticText " "
 
-    StaticText "Berserk + Mid-Air Multipliers", 1
+    StaticText "Berserk + Dodge Multipliers", 1
     StaticText " "
-    Slider "World Multiplier", "bt_berserk_midair_multiplier", 2, 20, 1
+    Slider "World Multiplier", "bt_berserk_dodge_multiplier", 2, 20, 1
     StaticText "                 Default is 16"
-    Slider "Player Movement Multiplier", "bt_berserk_midair_player_movement_multiplier", 2, 20, 1
+    Slider "Player Movement Multiplier", "bt_berserk_dodge_player_movement_multiplier", 2, 20, 1
     StaticText "                 Default is 10"
-    Slider "Player Weapons Multiplier", "bt_berserk_midair_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Player Weapons Multiplier", "bt_berserk_dodge_player_weapon_speed_multiplier", 2, 20, 1
     StaticText "                Default is 5"
         
     StaticText " "
@@ -141,6 +136,15 @@ OptionMenu "BtHudDisplay"
     StaticText " "
 }
 
+OptionValue "BtSoundTypes"
+{
+    0, "None"
+    1, "Max Payne"
+    2, "Max Payne 3"
+    3, "F.E.A.R."
+    4, "GTA V"
+}
+
 OptionMenu "BtExtra"
 {
     Title "Extra Options"
@@ -149,14 +153,7 @@ OptionMenu "BtExtra"
     StaticText "Changes will take effect on next level"
 
     StaticText " "
-    Option "Enable Heartbeat Sound Effect", "bt_heartbeat", "OnOff"
-
-    StaticText " "
     Option "Enable Accelerated Heartbeat during Berserk Effect", "bt_berserk_heartbeat", "OnOff"
-
-    StaticText " "
-    Option "Enable Bullet Time when holding Jump", "bt_jump_hold_enable", "OnOff"
-    Slider "Tics to wait", "bt_jump_hold_tics", 1, 35, 1
 
     StaticText " "
     Option "Enable White Blink Shader Effect", "bt_shader_white_blink_enable", "OnOff"
@@ -168,4 +165,9 @@ OptionMenu "BtExtra"
 
     StaticText " "
     Option "Hide Bullet Time activation message", "bt_hide_message", "OnOff"
+
+    StaticText " "
+    Option "Bullet Time start sound", "bt_sound_start_type", "BtSoundTypes"
+    Option "Bullet Time loop sound", "bt_sound_loop_type", "BtSoundTypes"
+    Option "Bullet Time stop sound", "bt_sound_stop_type", "BtSoundTypes"
 }

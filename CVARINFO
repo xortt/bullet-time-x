@@ -3,21 +3,19 @@ server int bt_player_movement_multiplier = 4;
 server int bt_player_weapon_speed_multiplier = 3;
 server int bt_player_model_slowdown = 1;
 
-server int bt_midair_enable = 1;
-server int bt_midair_jump_only = 1;
-server int bt_midair_min_distance = 16;
-server int bt_midair_multiplier = 14;
-server int bt_midair_player_movement_multiplier = 14;
-server int bt_midair_player_weapon_speed_multiplier = 6;
+server int bt_dodge_enable = 1;
+server int bt_dodge_multiplier = 14;
+server int bt_dodge_player_movement_multiplier = 14;
+server int bt_dodge_player_weapon_speed_multiplier = 6;
 
 server int bt_berserk_effect_enable = 1;
 server int bt_berserk_effect_duration = 30;
 server int bt_berserk_multiplier = 6;
 server int bt_berserk_player_movement_multiplier = 2;
 server int bt_berserk_player_weapon_speed_multiplier = 2;
-server int bt_berserk_midair_multiplier = 16;
-server int bt_berserk_midair_player_movement_multiplier = 10;
-server int bt_berserk_midair_player_weapon_speed_multiplier = 5;
+server int bt_berserk_dodge_multiplier = 16;
+server int bt_berserk_dodge_player_movement_multiplier = 14;
+server int bt_berserk_dodge_player_weapon_speed_multiplier = 5;
 
 server int bt_adrenaline_unlimited = 0;
 server int bt_adrenaline_duration = 15;
@@ -30,14 +28,13 @@ server int bt_counter_horizontal_offset = 95;
 server int bt_counter_vertical_offset = 10;
 server int bt_counter_scale = 7;
 
-server int bt_heartbeat = 1;
-
 server int bt_shader_white_blink_enable = 1;
 server int bt_shader_blur_enable = 1;
 
 server float bt_music_volume = 0.15;
 
-server int bt_jump_hold_enable = 0;
-server int bt_jump_hold_tics = 7;
-
 server int bt_hide_message = 0;
+
+server int bt_sound_start_type = 2;
+server int bt_sound_loop_type = 2;
+server int bt_sound_stop_type = 2;

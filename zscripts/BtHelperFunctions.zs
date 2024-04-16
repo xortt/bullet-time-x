@@ -1,5 +1,14 @@
 class BtHelperFunctions play
 {
+    enum BtSoundTypes 
+    {
+        NONE = 0,
+        MAX_PAYNE = 1,
+        MAX_PAYNE_3 = 2,
+        FEAR = 3,
+        GTA_V = 4
+    }
+    
     static bool checkPlayerIsSteppingActor(PlayerPawn doomPlayer)
     {
         // check if any actor is below player's radius to prevent glitching when calculating Z slowdown.
@@ -47,10 +56,10 @@ class BtHelperFunctions play
         return true;
     }
 
-    static bool isPlayerMidAir(PlayerPawn curPlayer, int distance)
+    static bool isPlayerMidAir(PlayerPawn curPlayer)
     {
         int diff = abs(curPlayer.pos.z - curPlayer.floorz);
-        return diff > distance;
+        return diff > 2; 
     }
 
     static bool isPlayerSteppingFloor(PlayerPawn curPlayer)
@@ -80,5 +89,78 @@ class BtHelperFunctions play
 			btItemData.ChangeStatNum(10);
         }
         btItemData.whitelisted = true;
+    }
+
+    static string getSoundTypeStart(BtSoundTypes type)
+    {
+        switch (type) 
+        {
+            case NONE:
+                return "";
+            case MAX_PAYNE:
+                return "SLWSTART";
+            case MAX_PAYNE_3:
+                return "MP3START";
+            case FEAR:
+                return "FEARSTART";
+            case GTA_V:
+                return "GTASTART";
+            default:
+                return "SLWSTART";
+        }
+    }
+
+    static string getSoundTypeStop(BtSoundTypes type)
+    {
+        switch (type) 
+        {
+            case NONE:
+                return "";
+            case MAX_PAYNE:
+                return "SLWSTOP";
+            case MAX_PAYNE_3:
+                return "MP3STOP";
+            case FEAR:
+                return "FEARSTOP";
+            case GTA_V:
+                return "GTASTOP";
+            default:
+                return "SLWSTOP";
+        }
+    }
+
+    static string getSoundTypeLoop(BtSoundTypes type, float curAmount, int btMaxDuration)
+    {  
+        int percentage = (curAmount / 525) * 100;
+        int loopPos = 0;
+
+        switch (type) 
+        {
+            case NONE:
+                return "";
+            case MAX_PAYNE:
+                return "SLWLOOP";
+            case MAX_PAYNE_3: 
+            {
+                if (percentage >= 40) loopPos = 1;
+                else if (percentage >= 15) loopPos = 2;
+                else loopPos = 3;
+
+                return "MP3LOOP"..loopPos;
+            }
+            case FEAR:
+                return "FEARLOOP";
+            case GTA_V:
+            {
+                if (percentage >= 50) loopPos = 1;
+                else if (percentage >= 16) loopPos = 2;
+                else if (btMaxDuration >= 30) loopPos = 3;
+                else if (btMaxDuration >= 45) loopPos = 4;
+
+                return "GTALOOP"..loopPos;
+            }
+            default:
+                return "SLWLOOP";
+        }
     }
 }
