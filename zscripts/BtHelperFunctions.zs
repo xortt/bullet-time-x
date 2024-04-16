@@ -8,6 +8,14 @@ class BtHelperFunctions play
         FEAR = 3,
         GTA_V = 4
     }
+
+    enum BtSoundLoopTypes
+    {
+        LOOP_NONE = 0,
+        LOOP_MAX_PAYNE = 1,
+        LOOP_MAX_PAYNE_3 = 2,
+        LOOP_GTA_V = 3
+    }
     
     static bool checkPlayerIsSteppingActor(PlayerPawn doomPlayer)
     {
@@ -102,7 +110,7 @@ class BtHelperFunctions play
             case MAX_PAYNE_3:
                 return "MP3START";
             case FEAR:
-                return "FEARSTART";
+                return "FRSTART";
             case GTA_V:
                 return "GTASTART";
             default:
@@ -121,7 +129,7 @@ class BtHelperFunctions play
             case MAX_PAYNE_3:
                 return "MP3STOP";
             case FEAR:
-                return "FEARSTOP";
+                return "FRSTOP";
             case GTA_V:
                 return "GTASTOP";
             default:
@@ -129,18 +137,18 @@ class BtHelperFunctions play
         }
     }
 
-    static string getSoundTypeLoop(BtSoundTypes type, float curAmount, int btMaxDuration)
+    static string getSoundTypeLoop(BtSoundLoopTypes type, float curAmount, int btMaxDuration)
     {  
         int percentage = (curAmount / 525) * 100;
         int loopPos = 0;
 
         switch (type) 
         {
-            case NONE:
+            case LOOP_NONE:
                 return "";
-            case MAX_PAYNE:
+            case LOOP_MAX_PAYNE:
                 return "SLWLOOP";
-            case MAX_PAYNE_3: 
+            case LOOP_MAX_PAYNE_3: 
             {
                 if (percentage >= 40) loopPos = 1;
                 else if (percentage >= 15) loopPos = 2;
@@ -148,9 +156,7 @@ class BtHelperFunctions play
 
                 return "MP3LOOP"..loopPos;
             }
-            case FEAR:
-                return "FEARLOOP";
-            case GTA_V:
+            case LOOP_GTA_V:
             {
                 if (percentage >= 50) loopPos = 1;
                 else if (percentage >= 16) loopPos = 2;
