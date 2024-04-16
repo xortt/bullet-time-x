@@ -16,6 +16,12 @@ class BtHelperFunctions play
         LOOP_MAX_PAYNE_3 = 2,
         LOOP_GTA_V = 3
     }
+
+    enum BtSoundDodgeTypes
+    {
+        DODGE_NONE = 0,
+        DODGE_MAX_PAYNE_3 = 1
+    }
     
     static bool checkPlayerIsSteppingActor(PlayerPawn doomPlayer)
     {
@@ -134,6 +140,19 @@ class BtHelperFunctions play
                 return "GTASTOP";
             default:
                 return "SLWSTOP";
+        }
+    }
+
+    static string getSoundTypeDodge(BtSoundDodgeTypes type)
+    {
+        switch (type) 
+        {
+            case DODGE_NONE:
+                return "";
+            case DODGE_MAX_PAYNE_3:
+                return "MP3DODGE";
+            default:
+                return "MP3DODGE";
         }
     }
 

@@ -1,5 +1,10 @@
 class BulletTime : EventHandler
 {
+	enum Constants
+	{
+		SOUND_START_COUNTER = 35,
+	}
+
 	// store time related data
 	Array<BtSectorInfo> sectorInfoList;
 
@@ -55,6 +60,7 @@ class BulletTime : EventHandler
 	int cvBtAdrenalineDurationMultiplier;
 	int cvBtAdrenalineRegenSpeed;
 	int cvBtSoundStartType;
+	int cvBtSoundDodgeType;
 	int cvBtSoundLoopType;
 	int cvBtSoundStopType;
 	float cvBtAdrenalineKillRewardMultiplier;
@@ -145,7 +151,8 @@ class BulletTime : EventHandler
 		cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 5, 120);
 
 		cvBtSoundStartType = clamp(cv.GetCVar("bt_sound_start_type").GetInt(), 0, 4);
-		cvBtSoundLoopType = clamp(cv.GetCVar("bt_sound_loop_type").GetInt(), 0, 4);
+		cvBtSoundDodgeType = clamp(cv.GetCVar("bt_sound_dodge_type").GetInt(), 0, 1);
+		cvBtSoundLoopType = clamp(cv.GetCVar("bt_sound_loop_type").GetInt(), 0, 3);
 		cvBtSoundStopType = clamp(cv.GetCVar("bt_sound_stop_type").GetInt(), 0, 4);
 
 		// initialize variables
@@ -219,7 +226,7 @@ class BulletTime : EventHandler
 		// check if Player can keep using bullet time
 		if (btPlayerActivator)
 		{
-			int adrenalineAmount = (btDodgeActive || cvBtAdrenalineUnlimited) ? 525 : btPlayerActivator.CountInv("BtAdrenaline");
+			int adrenalineAmount = cvBtAdrenalineUnlimited ? 525 : btPlayerActivator.CountInv("BtAdrenaline");
 
 			// hack to allow bullet time to last more if set in cvar bt_max_duration
 			if (btDurationCounter == cvBtAdrenalineDurationMultiplier)
@@ -227,19 +234,19 @@ class BulletTime : EventHandler
 				btPlayerActivator.TakeInventory("BtAdrenaline", 3);
 			}
 
-			if (cvBtSoundLoopType != 0 && btSoundStartCounter >= 70 && btActive)
+			if (cvBtSoundLoopType != 0 && btSoundStartCounter >= SOUND_START_COUNTER && btActive && !btDodgeActive)
 			{ // checks if sound is different from the last one, if so, then change it. Also starts the sound 2 secs after bullet time starts (to prevent overlapping sounds)
 				string soundTypeLoopPrefix = BtHelperFunctions.getSoundTypeLoop(cvBtSoundLoopType, adrenalineAmount, cvBtAdrenalineDuration);
 				string soundTypeLoopPostfix = BtHelperFunctions.getSoundTypeLoop(cvBtSoundLoopType, clamp(adrenalineAmount - 3, 0, 525), cvBtAdrenalineDuration);
 
-				if (soundTypeLoopPrefix != soundTypeLoopPostfix || btSoundStartCounter == 70) 
+				if (soundTypeLoopPrefix != soundTypeLoopPostfix || btSoundStartCounter == SOUND_START_COUNTER) 
 				{
 					btPlayerActivator.A_StartSound(soundTypeLoopPostfix, 16, CHANF_LOOP, 1.0, ATTN_NONE, 1.0);
 				}
 			}
 	
 			btDurationCounter = btDurationCounter >= cvBtAdrenalineDurationMultiplier ? 1 : btDurationCounter + 1;
-			btSoundStartCounter = btSoundStartCounter > 70 ? btSoundStartCounter : btSoundStartCounter + 1;
+			btSoundStartCounter = btSoundStartCounter > SOUND_START_COUNTER ? btSoundStartCounter : btSoundStartCounter + 1;
 
 			// disables bullet time when ran out of adrenaline / player hit floor or step onto another actor
 			bool canUseBulletTime = (btPlayerActivator.CheckInventory("BtBerserkerCounter", 1)) || btPlayerActivator.CheckInventory("BtAdrenaline", 1) || cvBtAdrenalineUnlimited;
@@ -390,6 +397,13 @@ class BulletTime : EventHandler
 				doSlowGame = true;
 				if (cvBtShaderBlur) btBlurEffectCounter = btBlurEffectCounter > 0 ? btBlurEffectCounter : 17;
 				btEffectCounter = btEffectCounter == 1 ? 17 : btEffectCounter;
+
+				// play dodge sound
+				if (cvBtSoundDodgeType != 0)
+				{
+					btPlayerActivator.A_StopSound(16); // stops loop sound
+					btPlayerActivator.A_StartSound(BtHelperFunctions.getSoundTypeDodge(cvBtSoundDodgeType), 15, CHANF_UI|CHANF_OVERLAP, 1.0, ATTN_NONE, 1.0);
+				}
 			}
 			else
 			{

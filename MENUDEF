@@ -153,6 +153,12 @@ OptionValue "BtSoundLoopTypes"
     3, "GTA V"
 }
 
+OptionValue "BtSoundDodgeTypes"
+{
+    0, "None"
+    1, "Max Payne 3"
+}
+
 OptionMenu "BtExtra"
 {
     Title "Extra Options"
@@ -176,6 +182,7 @@ OptionMenu "BtExtra"
 
     StaticText " "
     Option "Bullet Time start sound", "bt_sound_start_type", "BtSoundTypes"
+    Option "Bullet Time dodge sound", "bt_sound_dodge_type", "BtSoundDodgeTypes"
     Option "Bullet Time loop sound", "bt_sound_loop_type", "BtSoundLoopTypes"
     Option "Bullet Time stop sound", "bt_sound_stop_type", "BtSoundTypes"
 }

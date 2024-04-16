@@ -36,5 +36,6 @@ server float bt_music_volume = 0.15;
 server int bt_hide_message = 0;
 
 server int bt_sound_start_type = 2;
+server int bt_sound_dodge_type = 1;
 server int bt_sound_loop_type = 2;
 server int bt_sound_stop_type = 2;
