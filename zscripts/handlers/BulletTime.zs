@@ -117,24 +117,24 @@ class BulletTime : EventHandler
 	{
 		// get cvars
 		CVar cv;
-		cvBtMultiplier = clamp(cv.GetCVar("bt_multiplier").GetInt(), 2, 20);
-		cvBtPlayerMovementMultiplier = clamp(cv.GetCVar("bt_player_movement_multiplier").GetInt(), 2, 20);
-		cvBtPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt(), 2, 20);
+		cvBtMultiplier = clamp(cv.GetCVar("bt_multiplier").GetInt(), 0, 20);
+		cvBtPlayerMovementMultiplier = clamp(cv.GetCVar("bt_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt(), 1, 20);
 		cvBtPlayerModelSlowdown = clamp(cv.GetCVar("bt_player_model_slowdown").GetInt(), 0, 1);
 
 		cvBtDodgeEnable = clamp(cv.GetCVar("bt_dodge_enable").GetInt(), 0, 1);
-		cvBtDodgeMultiplier = clamp(cv.GetCVar("bt_dodge_multiplier").GetInt(), 2, 20);
-		cvBtDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_dodge_player_movement_multiplier").GetInt(), 2, 20);
-		cvBtDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_dodge_player_weapon_speed_multiplier").GetInt(), 2, 20);
+		cvBtDodgeMultiplier = clamp(cv.GetCVar("bt_dodge_multiplier").GetInt(), 0, 20);
+		cvBtDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_dodge_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_dodge_player_weapon_speed_multiplier").GetInt(), 1, 20);
 
 		cvBtBerserkEffectEnable = clamp(cv.GetCVar("bt_berserk_effect_enable").GetInt(), 0, 1);
 		cvBtBerserkEffectDuration = clamp(cv.GetCVar("bt_berserk_effect_duration").GetInt(), 15, 120);
-		cvBtBerserkMultiplier = clamp(cv.GetCVar("bt_berserk_multiplier").GetInt(), 2, 20);
-		cvBtBerserkPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt(), 2, 20);
-		cvBtBerserkPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt(), 2, 20);
-		cvBtBerserkDodgeMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_multiplier").GetInt(), 2, 20);
-		cvBtBerserkDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_movement_multiplier").GetInt(), 2, 20);
-		cvBtBerserkDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_weapon_speed_multiplier").GetInt(), 2, 20);
+		cvBtBerserkMultiplier = clamp(cv.GetCVar("bt_berserk_multiplier").GetInt(), 0, 20);
+		cvBtBerserkPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtBerserkPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt(), 1, 20);
+		cvBtBerserkDodgeMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_multiplier").GetInt(), 0, 20);
+		cvBtBerserkDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtBerserkDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_weapon_speed_multiplier").GetInt(), 1, 20);
 
 		cvBtHideMessage = clamp(cv.GetCVar("bt_hide_message").GetInt(), 0, 1);
 
@@ -764,6 +764,14 @@ class BulletTime : EventHandler
 	**/
 	void trackActors(bool handleSlowActor, bool applySlow, bool doUpdateMonsterInfoList, bool fromMultiplierChange)
 	{
+		if (btMultiplier == 0 && handleSlowActor)
+		{
+			if (applySlow && !btPlayerActivator.CheckInventory("BtTimeFreeze", 1)) btPlayerActivator.A_GiveInventory("BtTimeFreeze");
+			else if (!applySlow) btPlayerActivator.A_TakeInventory("BtTimeFreeze");
+
+			return;
+		}
+
 		Actor curActor;
 		ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
 
@@ -787,11 +795,15 @@ class BulletTime : EventHandler
 
 	void slowGame(bool bulletTime, bool updateMonsterInfoList, bool fromMultiplierChange)
 	{
-		slowLightSectors(bulletTime);
-		slowMovingSectors(bulletTime);
 		slowPlayers(bulletTime);
-		trackActors(true, bulletTime, updateMonsterInfoList, fromMultiplierChange);
-		slowScrollers(bulletTime);
+
+		if (btMultiplier != 1)
+		{
+			slowLightSectors(bulletTime);
+			slowMovingSectors(bulletTime);	
+			slowScrollers(bulletTime);
+			trackActors(true, bulletTime, updateMonsterInfoList, fromMultiplierChange);
+		}
 	}
 
 	void slowActor(Actor curActor, bool applySlow, BtItemData btItemData, bool fromMultiplierChange = false)
@@ -963,7 +975,7 @@ class BulletTime : EventHandler
 			else if (applySlow && fromMultiplierChange) // when multiplier changes, speed is returned back to normal so we have to change back tics and vel to where it was when bt is on
 			{
 				btItemData.actorInfo.lastTics /= btPlayerWeaponSpeedMultiplier;
-				btItemData.actorInfo.lastVel /= btMultiplier;
+				if (btMultiplier != 0) btItemData.actorInfo.lastVel /= btMultiplier;
 				doomPlayer.vel = btItemData.actorInfo.lastVel;
 
 				if (doomPlayer.tics != -1 && cvBtPlayerModelSlowdown)
@@ -996,7 +1008,7 @@ class BulletTime : EventHandler
 				bool didJump = (btItemData.actorInfo.playerJumpTic == 2 && doomPlayer.vel.z > btItemData.actorInfo.lastVel.z) || (btItemData.actorInfo.playerJumpTic == 1 && doomPlayer.vel.z > 0 && doomPlayer.vel.z > btItemData.actorInfo.lastVel.z);
 				if (didJump || hasExternalForceZ)
 				{
-					btItemData.actorInfo.lastVel.z /= ((btPlayerMovementMultiplier * btPlayerMovementMultiplier) / 2);
+					if (btPlayerMovementMultiplier != 1) btItemData.actorInfo.lastVel.z /= ((btPlayerMovementMultiplier * btPlayerMovementMultiplier) / 2);
 				} 
 
 				int xyMultiplier = btPlayerMovementMultiplier;
@@ -1053,6 +1065,8 @@ class BulletTime : EventHandler
 			// Loop through all items to check for powerups
 			for (Inventory item = doomPlayer.Inv; item != null; item = item.Inv)
 			{
+				if (btMultiplier == 0) continue;
+
 				Powerup powerUp = Powerup(item);
 				if (powerUp) // if successful and exists then multiply powerup time
 				{
@@ -1126,14 +1140,14 @@ class BulletTime : EventHandler
 				doomPlayer.A_SoundPitch(k, soundPitch);
 			
 			// change current floor/last floor damage interval
-			if (!btItemData.actorInfo.lastSector)
+			if (btMultiplier != 0 && !btItemData.actorInfo.lastSector)
 			{
 				btItemData.actorInfo.lastSector = doomPlayer.CurSector;
 				doomPlayer.CurSector.damageinterval = applySlow 
 					? doomPlayer.CurSector.damageinterval * btMultiplier 
 					: doomPlayer.CurSector.damageinterval;
 			}
-			else if ((btItemData.actorInfo.lastSector && btItemData.actorInfo.lastSector != doomPlayer.CurSector) || !applySlow)
+			else if (btMultiplier != 0 && ((btItemData.actorInfo.lastSector && btItemData.actorInfo.lastSector != doomPlayer.CurSector) || !applySlow))
 			{
 				btItemData.actorInfo.lastSector.damageinterval /= btMultiplier;
 				btItemData.actorInfo.lastSector = doomPlayer.CurSector;
@@ -1156,9 +1170,9 @@ class BulletTime : EventHandler
 	void slowLightSectors(bool applySlow)
 	{
 		int thinkerType = (applySlow && btTic == 1) ? Thinker.STAT_LIGHT : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_STATIC : -1;
-		int changedThinkerType = (applySlow && btTic == 1) ? Thinker.STAT_STATIC : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_LIGHT : -1;
+		int changedThinkerType = (applySlow && btTic == 1) ? Thinker.STAT_STATIC : (!applySlow || (btTic >= btMultiplier && btMultiplier != 0)) ? Thinker.STAT_LIGHT : -1;
 
-		if (thinkerType != -1)
+		if (thinkerType != -1 && changedThinkerType != -1)
 		{
 			Thinker lightThinker;
 			ThinkerIterator thinkerList = ThinkerIterator.Create("Lighting", thinkerType);
@@ -1171,9 +1185,9 @@ class BulletTime : EventHandler
 	void slowScrollers(bool applySlow)
 	{
 		int thinkerType = (applySlow && btTic == 1) ? Thinker.STAT_SCROLLER : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_STATIC : -1;
-		int changedThinkerType = (applySlow && btTic == 1) ? Thinker.STAT_STATIC : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_SCROLLER : -1;
+		int changedThinkerType = (applySlow && btTic == 1) ? Thinker.STAT_STATIC : (!applySlow || (btTic >= btMultiplier && btMultiplier != 0)) ? Thinker.STAT_SCROLLER : -1;
 
-		if (thinkerType != -1)
+		if (thinkerType != -1 && changedThinkerType != -1)
 		{
 			Thinker scrollerThinker;
 			ThinkerIterator thinkerList = ThinkerIterator.Create("Object", thinkerType);
@@ -1190,6 +1204,8 @@ class BulletTime : EventHandler
 
 	void slowMovingSectors(bool applySlow)
 	{
+		bool anyBtIsFreeze = cvBtMultiplier == 0 || cvBtBerserkMultiplier == 0 || cvBtDodgeMultiplier == 0 || cvBtBerserkDodgeMultiplier == 0;
+
 		sectorInfoList.Move(postTickController.sectorInfoList); // update array
 
 		Thinker thinkerSector;
@@ -1219,7 +1235,6 @@ class BulletTime : EventHandler
 			}
 		}
 
-
 		Array<int> itemsToDel;
 
 		for (int j = 0; j < sectorInfoList.Size(); j++)
@@ -1229,10 +1244,12 @@ class BulletTime : EventHandler
 				itemsToDel.Push(sectorInfoList[j].sectorID);
 				continue;
 			}
-			if (!btActive)
+			if (!btActive || (!applySlow && anyBtIsFreeze))
 			{
 				sectorInfoList[j].thinkerRef.changeStatNum(Thinker.STAT_SECTOREFFECT); // enables sector to move again
 			}
+
+			if (btMultiplier == 0) continue; // in freeze mode, no need to move sectors
 
 			SectorEffect se = SectorEffect(sectorInfoList[j].thinkerRef);
 			Sector sec = se.getSector();
@@ -1283,7 +1300,8 @@ class BulletTime : EventHandler
 				}
 			}
 		}
-		if (!btActive)
+		
+		if (!btActive || (!applySlow && anyBtIsFreeze))
 		{
 			sectorInfoList.Clear();
 		}

@@ -58,11 +58,11 @@ OptionMenu "BtTimeMultipliers"
 
     StaticText "Default Multipliers", 1
     StaticText " "
-    Slider "World Multiplier", "bt_multiplier", 2, 20, 1
+    Slider "World Multiplier", "bt_multiplier", 0, 20, 1
     StaticText "                Default is 4"
-    Slider "Player Movement Multiplier", "bt_player_movement_multiplier", 2, 20, 1
+    Slider "Player Movement Multiplier", "bt_player_movement_multiplier", 1, 20, 1
     StaticText "                Default is 4"
-    Slider "Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 1, 20, 1
     StaticText "                Default is 3"
     StaticText " "
     Option "Enable Player thirdperson slowdown", "bt_player_model_slowdown", "OnOff"
@@ -76,11 +76,11 @@ OptionMenu "BtTimeMultipliers"
     StaticText " "
     Option "Enable Dodge Multipliers", "bt_dodge_enable", "OnOff"
     StaticText " "
-    Slider "World Multiplier", "bt_dodge_multiplier", 2, 20, 1
+    Slider "World Multiplier", "bt_dodge_multiplier", 0, 20, 1
     StaticText "                 Default is 14"
-    Slider "Player Movement Multiplier", "bt_dodge_player_movement_multiplier", 2, 20, 1
+    Slider "Player Movement Multiplier", "bt_dodge_player_movement_multiplier", 1, 20, 1
     StaticText "                 Default is 14"
-    Slider "Player Weapons Multiplier", "bt_dodge_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Player Weapons Multiplier", "bt_dodge_player_weapon_speed_multiplier", 1, 20, 1
     StaticText "                Default is 6"
 
     StaticText " "
@@ -94,11 +94,11 @@ OptionMenu "BtTimeMultipliers"
     StaticText "                         Default is 30 seconds"
 
     StaticText " "
-    Slider "World Multiplier", "bt_berserk_multiplier", 2, 20, 1
+    Slider "World Multiplier", "bt_berserk_multiplier", 0, 20, 1
     StaticText "                Default is 6"
-    Slider "Player Movement Multiplier", "bt_berserk_player_movement_multiplier", 2, 20, 1
+    Slider "Player Movement Multiplier", "bt_berserk_player_movement_multiplier", 1, 20, 1
     StaticText "                Default is 2"
-    Slider "Player Weapons Multiplier", "bt_berserk_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Player Weapons Multiplier", "bt_berserk_player_weapon_speed_multiplier", 1, 20, 1
     StaticText "                Default is 2"
 
 
@@ -107,11 +107,11 @@ OptionMenu "BtTimeMultipliers"
 
     StaticText "Berserk + Dodge Multipliers", 1
     StaticText " "
-    Slider "World Multiplier", "bt_berserk_dodge_multiplier", 2, 20, 1
+    Slider "World Multiplier", "bt_berserk_dodge_multiplier", 0, 20, 1
     StaticText "                 Default is 16"
-    Slider "Player Movement Multiplier", "bt_berserk_dodge_player_movement_multiplier", 2, 20, 1
+    Slider "Player Movement Multiplier", "bt_berserk_dodge_player_movement_multiplier", 1, 20, 1
     StaticText "                 Default is 10"
-    Slider "Player Weapons Multiplier", "bt_berserk_dodge_player_weapon_speed_multiplier", 2, 20, 1
+    Slider "Player Weapons Multiplier", "bt_berserk_dodge_player_weapon_speed_multiplier", 1, 20, 1
     StaticText "                Default is 5"
         
     StaticText " "
@@ -165,9 +165,6 @@ OptionMenu "BtExtra"
 
     StaticText " "
     StaticText "Changes will take effect on next level"
-
-    StaticText " "
-    Option "Enable Accelerated Heartbeat during Berserk Effect", "bt_berserk_heartbeat", "OnOff"
 
     StaticText " "
     Option "Enable White Blink Shader Effect", "bt_shader_white_blink_enable", "OnOff"

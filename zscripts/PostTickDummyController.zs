@@ -32,6 +32,8 @@ class PostTickDummyController : Actor
 
 	void slowMovingSectors()
 	{
+		if (btMultiplier == 0) return; // in freeze mode no need to do anything
+
 		for (int j = 0; j < sectorInfoList.Size(); j++)
 		{
 			if (!sectorInfoList[j].thinkerRef)
