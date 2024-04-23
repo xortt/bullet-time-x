@@ -319,7 +319,7 @@ class BulletTime : EventHandler
 			float cvBtCounterHorizontalOffset = float(clamp(cv.GetCVar("bt_counter_horizontal_offset").GetInt(), 0, 100)) / 100;
 			float cvBtCounterVerticalOffset = float(clamp(cv.GetCVar("bt_counter_vertical_offset").GetInt(), 0, 100)) / 100;
 			int cvBtCounterScale = clamp(cv.GetCVar("bt_counter_scale").GetInt(), 1, 10);
-			int uiscale = clamp(cv.GetCVar("uiscale").GetInt() - 1, 1, 6);
+			int uiscale = clamp(cv.GetCVar("uiscale").GetInt() - 1, 1, 4);
 
 			// sand clock dimensiones
 			int width = 186 * uiscale;
