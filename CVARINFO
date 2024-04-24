@@ -13,7 +13,7 @@ server int bt_berserk_effect_duration = 30;
 server int bt_berserk_multiplier = 6;
 server int bt_berserk_player_movement_multiplier = 2;
 server int bt_berserk_player_weapon_speed_multiplier = 2;
-server int bt_berserk_dodge_multiplier = 16;
+server int bt_berserk_dodge_multiplier = 0;
 server int bt_berserk_dodge_player_movement_multiplier = 14;
 server int bt_berserk_dodge_player_weapon_speed_multiplier = 5;
 

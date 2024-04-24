@@ -115,33 +115,10 @@ class BulletTime : EventHandler
 
 	override void WorldLoaded(WorldEvent e)
 	{
+		initCvarVariables();
+
 		// get cvars
 		CVar cv;
-		cvBtMultiplier = clamp(cv.GetCVar("bt_multiplier").GetInt(), 0, 20);
-		cvBtPlayerMovementMultiplier = clamp(cv.GetCVar("bt_player_movement_multiplier").GetInt(), 1, 20);
-		cvBtPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt(), 1, 20);
-		cvBtPlayerModelSlowdown = clamp(cv.GetCVar("bt_player_model_slowdown").GetInt(), 0, 1);
-
-		cvBtDodgeEnable = clamp(cv.GetCVar("bt_dodge_enable").GetInt(), 0, 1);
-		cvBtDodgeMultiplier = clamp(cv.GetCVar("bt_dodge_multiplier").GetInt(), 0, 20);
-		cvBtDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_dodge_player_movement_multiplier").GetInt(), 1, 20);
-		cvBtDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_dodge_player_weapon_speed_multiplier").GetInt(), 1, 20);
-
-		cvBtBerserkEffectEnable = clamp(cv.GetCVar("bt_berserk_effect_enable").GetInt(), 0, 1);
-		cvBtBerserkEffectDuration = clamp(cv.GetCVar("bt_berserk_effect_duration").GetInt(), 15, 120);
-		cvBtBerserkMultiplier = clamp(cv.GetCVar("bt_berserk_multiplier").GetInt(), 0, 20);
-		cvBtBerserkPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt(), 1, 20);
-		cvBtBerserkPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt(), 1, 20);
-		cvBtBerserkDodgeMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_multiplier").GetInt(), 0, 20);
-		cvBtBerserkDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_movement_multiplier").GetInt(), 1, 20);
-		cvBtBerserkDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_weapon_speed_multiplier").GetInt(), 1, 20);
-
-		cvBtHideMessage = clamp(cv.GetCVar("bt_hide_message").GetInt(), 0, 1);
-
-		cvBtShaderWhiteBlink = clamp(cv.GetCVar("bt_shader_white_blink_enable").GetInt(), 0, 1);
-		cvBtShaderBlur = clamp(cv.GetCVar("bt_shader_blur_enable").GetInt(), 0, 1);
-
-		cvBtMusicVolume = clamp(cv.GetCVar("bt_music_volume").GetFloat(), 0.0, 1.0);
 
 		cvBtAdrenalineUnlimited = clamp(cv.GetCVar("bt_adrenaline_unlimited").GetInt(), 0, 1);
 		cvBtAdrenalineKillRewardWhenActive = clamp(cv.GetCVar("bt_adrenaline_kill_reward_when_active").GetInt(), 0, 1);
@@ -150,10 +127,7 @@ class BulletTime : EventHandler
 		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
 		cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 5, 120);
 
-		cvBtSoundStartType = clamp(cv.GetCVar("bt_sound_start_type").GetInt(), 0, 4);
-		cvBtSoundDodgeType = clamp(cv.GetCVar("bt_sound_dodge_type").GetInt(), 0, 1);
-		cvBtSoundLoopType = clamp(cv.GetCVar("bt_sound_loop_type").GetInt(), 0, 3);
-		cvBtSoundStopType = clamp(cv.GetCVar("bt_sound_stop_type").GetInt(), 0, 4);
+		cvBtBerserkEffectDuration = clamp(cv.GetCVar("bt_berserk_effect_duration").GetInt(), 5, 120);
 
 		// initialize variables
 		btMultiplier = cvBtMultiplier;
@@ -372,6 +346,46 @@ class BulletTime : EventHandler
 		}
 	}
 
+	void initCvarVariables()
+	{
+		CVar cv;
+
+		cvBtHideMessage = clamp(cv.GetCVar("bt_hide_message").GetInt(), 0, 1);
+
+		cvBtShaderWhiteBlink = clamp(cv.GetCVar("bt_shader_white_blink_enable").GetInt(), 0, 1);
+		cvBtShaderBlur = clamp(cv.GetCVar("bt_shader_blur_enable").GetInt(), 0, 1);
+
+		cvBtMultiplier = clamp(cv.GetCVar("bt_multiplier").GetInt(), 0, 20);
+		cvBtPlayerMovementMultiplier = clamp(cv.GetCVar("bt_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_player_weapon_speed_multiplier").GetInt(), 1, 20);
+		cvBtPlayerModelSlowdown = clamp(cv.GetCVar("bt_player_model_slowdown").GetInt(), 0, 1);
+
+		cvBtDodgeEnable = clamp(cv.GetCVar("bt_dodge_enable").GetInt(), 0, 1);
+		cvBtDodgeMultiplier = clamp(cv.GetCVar("bt_dodge_multiplier").GetInt(), 0, 20);
+		cvBtDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_dodge_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_dodge_player_weapon_speed_multiplier").GetInt(), 1, 20);
+
+		cvBtBerserkEffectEnable = clamp(cv.GetCVar("bt_berserk_effect_enable").GetInt(), 0, 1);
+		cvBtBerserkMultiplier = clamp(cv.GetCVar("bt_berserk_multiplier").GetInt(), 0, 20);
+		cvBtBerserkPlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtBerserkPlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_player_weapon_speed_multiplier").GetInt(), 1, 20);
+		cvBtBerserkDodgeMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_multiplier").GetInt(), 0, 20);
+		cvBtBerserkDodgePlayerMovementMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_movement_multiplier").GetInt(), 1, 20);
+		cvBtBerserkDodgePlayerWeaponSpeedMultiplier = clamp(cv.GetCVar("bt_berserk_dodge_player_weapon_speed_multiplier").GetInt(), 1, 20);
+
+		cvBtMusicVolume = clamp(cv.GetCVar("bt_music_volume").GetFloat(), 0.0, 1.0);
+
+		cvBtSoundStartType = clamp(cv.GetCVar("bt_sound_start_type").GetInt(), 0, 4);
+		cvBtSoundDodgeType = clamp(cv.GetCVar("bt_sound_dodge_type").GetInt(), 0, 1);
+		cvBtSoundLoopType = clamp(cv.GetCVar("bt_sound_loop_type").GetInt(), 0, 3);
+		cvBtSoundStopType = clamp(cv.GetCVar("bt_sound_stop_type").GetInt(), 0, 4);
+
+		// initialize variables
+		btMultiplier = cvBtMultiplier;
+		btPlayerMovementMultiplier = cvBtPlayerMovementMultiplier;
+		btPlayerWeaponSpeedMultiplier = cvBtPlayerWeaponSpeedMultiplier;
+	}
+
 	bool applyMultipliers(bool forceDoSlowGame = false)
 	{
 		bool doSlowGame = forceDoSlowGame;
@@ -465,6 +479,9 @@ class BulletTime : EventHandler
 		{
 			btTic = 0;
 			btSoundStartCounter = 0;
+
+			initCvarVariables(); // reinitialize cvars
+			
 			if (cvBtShaderBlur) btBlurEffectCounter = btBlurEffectCounter > 0 ? btBlurEffectCounter : 17;
 
 			int adrenalineAmount = player.CountInv("BtAdrenaline");
@@ -591,8 +608,8 @@ class BulletTime : EventHandler
 							if (ticDiff < 0 && currentPowerUpTic <= berserkerMaxTicEffect)
 							{
 								// forces player adrenaline to be at 100% when berserker counter effect is on
-								int counterMultiplier = cvBtBerserkEffectDuration / 15;
-								int berserkCounter = (berserkerMaxTicEffect - currentPowerUpTic) / counterMultiplier;
+								int counterMultiplier = cvBtBerserkEffectDuration / 5;
+								int berserkCounter = (berserkerMaxTicEffect - currentPowerUpTic) * 3 / counterMultiplier;
 								
 								doomPlayer.GiveInventory("BtAdrenaline", 1000);
 								doomPlayer.SetInventory("BtBerserkerCounter", berserkCounter);
@@ -1182,6 +1199,7 @@ class BulletTime : EventHandler
 			}
 		}
 	}
+
 	void slowScrollers(bool applySlow)
 	{
 		int thinkerType = (applySlow && btTic == 1) ? Thinker.STAT_SCROLLER : (!applySlow || btTic >= btMultiplier) ? Thinker.STAT_STATIC : -1;
