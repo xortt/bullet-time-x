@@ -203,7 +203,7 @@ class BulletTime : EventHandler
 			int adrenalineAmount = cvBtAdrenalineUnlimited ? 525 : btPlayerActivator.CountInv("BtAdrenaline");
 
 			// hack to allow bullet time to last more if set in cvar bt_max_duration
-			if (btDurationCounter == cvBtAdrenalineDurationMultiplier)
+			if (btDurationCounter == cvBtAdrenalineDurationMultiplier && btActive)
 			{
 				btPlayerActivator.TakeInventory("BtAdrenaline", 3);
 			}

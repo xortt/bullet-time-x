@@ -65,6 +65,8 @@ OptionMenu "BtTimeMultipliers"
     StaticText " "
     Slider "World Multiplier", "bt_multiplier", 0, 20, 1
     StaticText "                Default is 4"
+    StaticText " (Affects world time, such as monsters, items, lifts, doors, etc. A value of 0 will freeze the world)"
+    StaticText " "
     Slider "Player Movement Multiplier", "bt_player_movement_multiplier", 1, 20, 1
     StaticText "                Default is 4"
     Slider "Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 1, 20, 1
@@ -110,7 +112,7 @@ OptionMenu "BtTimeMultipliers"
     StaticText "Berserk + Shootdodge Multipliers", 1
     StaticText " "
     Slider "World Multiplier", "bt_berserk_dodge_multiplier", 0, 20, 1
-    StaticText "                 Default is 0"
+    StaticText "                 Default is 0 (full freeze)"
     Slider "Player Movement Multiplier", "bt_berserk_dodge_player_movement_multiplier", 1, 20, 1
     StaticText "                 Default is 14"
     Slider "Player Weapons Multiplier", "bt_berserk_dodge_player_weapon_speed_multiplier", 1, 20, 1
