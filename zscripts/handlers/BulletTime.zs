@@ -25,6 +25,7 @@ class BulletTime : EventHandler
 	bool btEffectInvulnerability;
 
 	// main bullet time variables
+	bool onTitleMapOrFrozen;
 	bool btActive;
 	bool btDodgeActive;
 	bool btBerserkActive;
@@ -115,6 +116,14 @@ class BulletTime : EventHandler
 
 	override void WorldLoaded(WorldEvent e)
 	{
+		// check if player is on titlemap or frozen
+		PlayerInfo p = players[consoleplayer];
+		if (p.IsTotallyFrozen())
+		{
+			onTitleMapOrFrozen = true;
+			return;
+		}
+
 		initCvarVariables();
 
 		// get cvars
@@ -168,6 +177,8 @@ class BulletTime : EventHandler
 
 	override void WorldTick()
 	{
+		if (onTitleMapOrFrozen) return;
+
 		if (btConsoleActive)
 		{
 			btConsoleActive = false;
@@ -249,6 +260,8 @@ class BulletTime : EventHandler
 	**/
 	override void RenderOverlay(RenderEvent e)
     {
+		if (onTitleMapOrFrozen) return;
+
         PlayerInfo p = players[consoleplayer];
 
 		// enable shader that gives the white blink screen when enabling bullet time
