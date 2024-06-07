@@ -15,8 +15,8 @@ void main()
 
     for( int i = 0; i < samples; i++ )
     {
-        vec3 current = texture( InputTexture, TexCoord + steps * i ).rgb;
-        vec3 delayed = texture( InputTexture, TexCoord + steps * (i + delay) ).rgb; // Calculate delayed color here
+        vec3 current = texture( InputTexture, TexCoord + steps * float(i) ).rgb;
+        vec3 delayed = texture( InputTexture, TexCoord + steps * float(i + delay) ).rgb; // Calculate delayed color here
         C += mix(current, delayed, feedbackAmount) * increment;
     }
 
