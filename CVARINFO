@@ -1,21 +1,21 @@
 server int bt_multiplier = 4;
-server int bt_player_movement_multiplier = 4;
-server int bt_player_weapon_speed_multiplier = 3;
+server int bt_player_movement_multiplier = 3;
+server int bt_player_weapon_speed_multiplier = 2;
 server int bt_player_model_slowdown = 1;
 
 server int bt_dodge_enable = 1;
 server int bt_dodge_multiplier = 14;
 server int bt_dodge_player_movement_multiplier = 14;
-server int bt_dodge_player_weapon_speed_multiplier = 6;
+server int bt_dodge_player_weapon_speed_multiplier = 4;
 
 server int bt_berserk_effect_enable = 1;
 server int bt_berserk_effect_duration = 30;
 server int bt_berserk_multiplier = 6;
 server int bt_berserk_player_movement_multiplier = 2;
-server int bt_berserk_player_weapon_speed_multiplier = 2;
+server int bt_berserk_player_weapon_speed_multiplier = 1;
 server int bt_berserk_dodge_multiplier = 0;
 server int bt_berserk_dodge_player_movement_multiplier = 14;
-server int bt_berserk_dodge_player_weapon_speed_multiplier = 5;
+server int bt_berserk_dodge_player_weapon_speed_multiplier = 2;
 
 server int bt_adrenaline_unlimited = 0;
 server int bt_adrenaline_duration = 15;

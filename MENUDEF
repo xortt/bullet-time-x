@@ -1,5 +1,6 @@
-AddOptionMenu "OptionsMenu"
+AddOptionMenu "ModOptionsMenu"
 {
+    ModHeader "Bullet Time X", "@Xortt", "$MOD_DESCRIPTION", "BTLOGO", "$MOD_README"
     Submenu "Bullet Time X Options", "BtOptions"
 }
 
