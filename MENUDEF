@@ -15,6 +15,11 @@ OptionMenu "BtOptions"
     Submenu "Time Multipliers", "BtTimeMultipliers"
     Submenu "HUD and Display", "BtHudDisplay"
     Submenu "Music and Sound", "BtSound"
+
+    StaticText " "
+
+    Command "Reload Bullet Time X settings", "bullettime_handler_reload"
+    SafeCommand "Remove Bullet Time X from current savegame", "bullettime_handler_remove", "Are you sure you want to delete Bullet Time X from the current savegame? If you want to recover it later, just press the 'Reload Bullet Time X settings' button in the options menu."
 }
 
 OptionMenu "BtAdrenalineSystem"
@@ -22,7 +27,7 @@ OptionMenu "BtAdrenalineSystem"
     Title "Adrenaline System"
 
     StaticText " "
-    StaticText "Changes will take effect on next level"
+    StaticText "Changes will take effect on next level or after reloading Bullet Time X settings"
 
     StaticText " "
     StaticText " "
@@ -152,6 +157,9 @@ OptionMenu "BtHudDisplay"
 OptionMenu "BtSound"
 {
     Title "Sound"
+
+    StaticText " "
+    StaticText "Some changes will take effect next time Bullet Time is activated"
 
     StaticText " "
 

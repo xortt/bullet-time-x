@@ -1,4 +1,5 @@
 GameInfo
 {
     AddEventHandlers = "BulletTime"
+    AddEventHandlers = "BulletTimeStatic"
 }

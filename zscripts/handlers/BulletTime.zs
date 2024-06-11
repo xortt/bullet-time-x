@@ -5,12 +5,15 @@ class BulletTime : EventHandler
 		SOUND_START_COUNTER = 35,
 	}
 
-	// store time related data
-	Array<BtSectorInfo> sectorInfoList;
+	// only true when static event handler creates this class (used when a game is loaded without bullet time event handler)
+	bool createdFromEventStaticHandler;
+	bool btHandlerInitialized;
 
+	// Activator of Bullet Time
 	PlayerPawn btPlayerActivator;
 
-	int btOneSecondTick; // on 35th tic it resets to 0
+	// store sector related data
+	Array<BtSectorInfo> sectorInfoList;
 
 	// stores Monsters adrenaline related data, used with bullet time on and off
 	Array<BtMonsterInfo> btMonsterInfoList;
@@ -25,17 +28,18 @@ class BulletTime : EventHandler
 	bool btEffectInvulnerability;
 
 	// main bullet time variables
-	bool onTitleMapOrFrozen;
 	bool btActive;
-	bool btDodgeActive;
 	bool btBerserkActive;
 	bool btConsoleActive; // only used when player activates bt through console cmd
-	int btTic;
+	bool btDodgeActive;
+	bool btEnabled;
+	bool onTitleMapOrFrozen;
 	int btDurationCounter;
-
 	int btMultiplier;
+	int btOneSecondTick; // on 35th tic it resets to 0
 	int btPlayerMovementMultiplier;
 	int btPlayerWeaponSpeedMultiplier;
+	int btTic;
 
 	// cvar options (only changed when they are initialized)
 	int cvBtMultiplier;
@@ -78,6 +82,16 @@ class BulletTime : EventHandler
 
 	override void NetworkProcess(ConsoleEvent e)
 	{
+		if (!createdFromEventStaticHandler && e.Name == "bt_handler_remove")
+		{
+			removeHandler(false);
+		}
+
+		if (!createdFromEventStaticHandler && e.Name == "bt_handler_reload")
+		{
+			reloadHandler();
+		}
+
 		if (e.Name == "bt_activate")
 		{
 			let player = PlayerPawn(players[e.player].mo);
@@ -116,6 +130,13 @@ class BulletTime : EventHandler
 
 	override void WorldLoaded(WorldEvent e)
 	{
+		// when Bullet Time handler gets initialized automatically, let the static one know that to prevent manual init.
+		if (!createdFromEventStaticHandler)
+		{
+			btHandlerInitialized = true;
+			removeStaticHandler();
+		}
+
 		// check if player is on titlemap or frozen
 		PlayerInfo p = players[consoleplayer];
 		if (p.IsTotallyFrozen())
@@ -124,19 +145,7 @@ class BulletTime : EventHandler
 			return;
 		}
 
-		initCvarVariables();
-
-		// get cvars
-		CVar cv;
-
-		cvBtAdrenalineUnlimited = clamp(cv.GetCVar("bt_adrenaline_unlimited").GetInt(), 0, 1);
-		cvBtAdrenalineKillRewardWhenActive = clamp(cv.GetCVar("bt_adrenaline_kill_reward_when_active").GetInt(), 0, 1);
-		cvBtAdrenalineKillRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_kill_reward_multiplier").GetFloat(), 0, 10);
-		cvBtAdrenalinePlayerDamageRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_player_damage_reward_multiplier").GetFloat(), 0, 10);
-		cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
-		cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 5, 120);
-
-		cvBtBerserkEffectDuration = clamp(cv.GetCVar("bt_berserk_effect_duration").GetInt(), 5, 120);
+		initCvarVariables(false);
 
 		// initialize variables
 		btMultiplier = cvBtMultiplier;
@@ -177,7 +186,10 @@ class BulletTime : EventHandler
 
 	override void WorldTick()
 	{
-		if (onTitleMapOrFrozen) return;
+		if (!btHandlerInitialized && !createdFromEventStaticHandler) 
+			removeStaticHandler(); // prevents double initialization of handler
+
+		if (onTitleMapOrFrozen) return; // don't do anything when on titlemap or frozen
 
 		if (btConsoleActive)
 		{
@@ -359,9 +371,76 @@ class BulletTime : EventHandler
 		}
 	}
 
-	void initCvarVariables()
+	void removeStaticHandler()
+	{
+		BulletTimeStatic handler = BulletTimeStatic(StaticEventHandler.Find("BulletTimeStatic"));
+		handler.btEventHandlerInitialized = true;
+		handler.btHandler = null;
+	}
+
+	void removeHandler(bool fromStaticHandler)
+	{
+		if (btActive) console.printf("Bullet Time X: Bullet Time is active, please turn it off before removing it.");
+		else 
+		{
+			Actor curActor;
+			ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
+
+			while (curActor = Actor(actorList.Next()))
+			{
+				curActor.SetInventory("BtItemData", 0);
+			}
+
+			PlayerPawn doomPlayer;
+			ThinkerIterator playerList = ThinkerIterator.Create("PlayerPawn", Thinker.STAT_PLAYER);
+
+			while (doomPlayer = PlayerPawn(playerList.Next()) )
+			{
+				doomPlayer.SetInventory("BtItemData", 0);
+				doomPlayer.SetInventory("BtAdrenaline", 0);
+				doomPlayer.SetInventory("BtBerserkerCounter", 0);
+				doomPlayer.SetInventory("BtHandlerRef", 0);
+			}
+
+			if (postTickController) postTickController.destroy();
+			
+			BulletTimeStatic staticHandler = BulletTimeStatic(StaticEventHandler.Find("BulletTimeStatic"));
+			staticHandler.btEventHandlerInitialized = false;
+			staticHandler.btHandlerRemoved = true;
+
+			console.printf("Bullet Time X: Removed successfully from current game.");
+
+			if (!fromStaticHandler && !bDESTROYED) // Safety check, a flag found in Object itself.
+				Destroy();
+		}
+	}
+
+	void reloadHandler()
+	{
+		if (btActive) console.printf("Bullet Time X: Bullet Time is active, please turn it off before reloading its settings.");
+		else
+		{
+			WorldLoaded(null);
+
+			console.printf("Bullet Time X: Settings reloaded.");
+		}
+	}
+
+	void initCvarVariables(bool fromBtActivation)
 	{
 		CVar cv;
+
+		if (!fromBtActivation)
+		{
+			cvBtAdrenalineUnlimited = clamp(cv.GetCVar("bt_adrenaline_unlimited").GetInt(), 0, 1);
+			cvBtAdrenalineKillRewardWhenActive = clamp(cv.GetCVar("bt_adrenaline_kill_reward_when_active").GetInt(), 0, 1);
+			cvBtAdrenalineKillRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_kill_reward_multiplier").GetFloat(), 0, 10);
+			cvBtAdrenalinePlayerDamageRewardMultiplier = clamp(cv.GetCVar("bt_adrenaline_player_damage_reward_multiplier").GetFloat(), 0, 10);
+			cvBtAdrenalineRegenSpeed = clamp(cv.GetCVar("bt_adrenaline_regen_speed").GetInt(), 0, 35);
+			cvBtAdrenalineDuration = clamp(cv.GetCVar("bt_adrenaline_duration").GetInt(), 5, 120);
+
+			cvBtBerserkEffectDuration = clamp(cv.GetCVar("bt_berserk_effect_duration").GetInt(), 5, 120);
+		}
 
 		cvBtHideMessage = clamp(cv.GetCVar("bt_hide_message").GetInt(), 0, 1);
 
@@ -493,7 +572,7 @@ class BulletTime : EventHandler
 			btTic = 0;
 			btSoundStartCounter = 0;
 
-			initCvarVariables(); // reinitialize cvars
+			initCvarVariables(true); // reinitialize cvars
 			
 			if (cvBtShaderBlur) btBlurEffectCounter = btBlurEffectCounter > 0 ? btBlurEffectCounter : 17;
 
