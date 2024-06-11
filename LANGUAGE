@@ -1,4 +1,94 @@
 [enu default]
 
-MOD_DESCRIPTION="Fill your adrenaline meter up and mow down everything in your path in Slow Motion with Bullet Time X!";
+MOD_DESCRIPTION="Fill your adrenaline meter up and mow down everything in your path in Slow Motion with Bullet Time X!\n\nVersion 1.3.1";
 MOD_README="Readme";
+
+CONTROL_TITLE_BULLET_TIME="Start/Stop Bullet Time";
+CONTROL_TITLE_BULLET_TIME_SHOOTDODGE="Shootdodge";
+
+OPTION_TITLE_HANDLER_RELOAD="Reload Bullet Time X settings";
+OPTION_DESC_HANDLER_RELOAD="This will reload Bullet Time X settings. Making every change take effect.\n\nBullet Time must be off in order to reload settings.";
+
+OPTION_TITLE_HANDLER_REMOVE="Remove Bullet Time X from current savegame";
+OPTION_DESC_HANDLER_REMOVE="This will remove Bullet Time X from the current savegame. If you want to recover Bullet Time X from a savegame that was deleted, press 'Reload Bullet Time X settings' to restart it.\n\nBullet Time must be off in order to remove it.";
+OPTION_WARN_HANDLER_REMOVE="Are you sure you want to delete Bullet Time X from the current savegame?";
+
+
+OPTION_TITLE_ADRENALINE_UNLIMITED="Unlimited Bullet Time";
+OPTION_DESC_ADRENALINE_UNLIMITED="Enables unlimited Bullet Time, this will also hide the adrenaline counter.\n\nDefault is off.\n\nChanges will take effect on new game or after reloading Bullet Time X settings.";
+
+OPTION_TITLE_ADRENALINE_DURATION="Bullet Time Duration";
+OPTION_DESC_ADRENALINE_DURATION="How many seconds will Bullet Time last.\n\nDefault is 15 seconds.\n\nChanges will take effect on new game or after reloading Bullet Time X settings.";
+
+OPTION_TITLE_ADRENALINE_REGEN_SPEED="Adrenaline Regeneration Speed";
+OPTION_DESC_ADRENALINE_REGEN_SPEED="The rate of speed in which Adrenaline points regenerate, a higher value is faster.\n\nDefault is 6.\n\nChanges will take effect on new game or after reloading Bullet Time X settings.";
+
+OPTION_TITLE_ADRENALINE_KILL_REWARD_WHEN_ACTIVE="Adrenaline Kill Rewards during Bullet Time";
+OPTION_DESC_ADRENALINE_KILL_REWARD_WHEN_ACTIVE="If enabled, Adrenaline points will be granted for kills during Bullet Time.\n\nDefault is off.\n\nChanges will take effect on new game or after reloading Bullet Time X settings.";
+
+OPTION_TITLE_ADRENALINE_KILL_REWARD_MULTIPLIER="Adrenaline Kill Reward Multiplier";
+OPTION_DESC_ADRENALINE_KILL_REWARD_MULTIPLIER="The amount of Adrenaline points you get for each kill.\n\nDefault is 4.\n\nChanges will take effect on new game or after reloading Bullet Time X settings.";
+
+OPTION_TITLE_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER="Adrenaline Player Damage Reward Multiplier";
+OPTION_DESC_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER="The amount of Adrenaline points you get when you receive damage.\n\nDefault is 4.\n\nChanges will take effect on new game or after reloading Bullet Time X settings.";
+
+
+OPTION_TITLE_DEFAULT_MULTIPLIERS="Default Multipliers";
+
+OPTION_TITLE_WORLD_MULTIPLIER="World Multiplier";
+OPTION_DESC_WORLD_MULTIPLIER="Affects world time, such as monsters, items, lifts, doors, etc. A value of 0 will freeze the world\n\nDefault is 4.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER="Player Movement Multiplier";
+OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER="Affects Player movement speed.\n\nDefault is 3.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER="Player Weapons Multiplier";
+OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER="Affects Player weapons speed (firing, reloading, etc.)\n\nDefault is 2.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_ENABLE_PLAYER_THIRDPERSON_SLOWDOWN="Enable Player thirdperson slowdown";
+OPTION_DESC_ENABLE_PLAYER_THIRDPERSON_SLOWDOWN="Affects Player thirdperson model only this is purely visual, uses 'Player Weapons Multiplier'\n\nDefault is On.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_SHOOTDODGE_MULTIPLIERS="Shootdodge Multipliers";
+
+OPTION_TITLE_ENABLE_SHOOTDODGE_MULTIPLIERS="Enable Shootdodge Multipliers";
+OPTION_DESC_ENABLE_SHOOTDODGE_MULTIPLIERS="Enables Shootdodge Multipliers to take effect.\n\nDefault is on.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_WORLD_MULTIPLIER_SHOOTDODGE="World Multiplier";
+OPTION_DESC_WORLD_MULTIPLIER_SHOOTDODGE="Affects world time on air such as monsters, items, lifts, doors, etc. A value of 0 will freeze the world.\n\nDefault is 14.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE="Player Movement Multiplier";
+OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE="Affects Player movement speed on air.\n\nDefault is 14.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE="Player Weapons Multiplier";
+OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE="Affects Player weapons speed (firing, reloading, etc.) on air.\n\nDefault is 4.\n\nChanges will take effect next time Bullet Time is activated.";
+
+
+OPTION_TITLE_ENABLE_WHITE_BLINK_SHADER_EFFECT="Enable White Blink Shader Effect";
+OPTION_DESC_ENABLE_WHITE_BLINK_SHADER_EFFECT="When Bullet Time is activated a 'white blink' shader effect will be applied to the screen.\n\nDefault is On.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_ENABLE_BLUR_SHADER_EFFECT="Enable Blur Shader Effect";
+OPTION_DESC_ENABLE_BLUR_SHADER_EFFECT="When Bullet Time is activated a 'blur' shader effect will be applied to the screen at the start of it.\n\nDefault is On.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_ADRENALINE_COUNTER_HORIZONTAL_OFFSET="Adrenaline Counter Horizontal Offset";
+OPTION_DESC_ADRENALINE_COUNTER_HORIZONTAL_OFFSET="Positive values move the counter to the right, negative values move it to the left.\n\nDefault is 95%.";
+
+OPTION_TITLE_ADRENALINE_COUNTER_VERTICAL_OFFSET="Adrenaline Counter Vertical Offset";
+OPTION_DESC_ADRENALINE_COUNTER_VERTICAL_OFFSET="Positive values move the counter down, negative values move it up.\n\nDefault is 10%.";
+
+OPTION_TITLE_ADRENALINE_COUNTER_SCALE="Adrenaline Counter Scale";
+OPTION_DESC_ADRENALINE_COUNTER_SCALE="The scale of the adrenaline counter.\n\nDefault is 7.";
+
+
+OPTION_TITLE_MUSIC_VOLUME_DURING_BT="Music volume during Bullet Time";
+OPTION_DESC_MUSIC_VOLUME_DURING_BT="The volume of the music during Bullet Time.\n\nDefault is 0.15.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_BT_START_SOUND="Bullet Time Start sound";
+OPTION_DESC_BT_START_SOUND="The sound that will play when Bullet Time is activated.\n\nDefault is Max Payne 3.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_BT_SHOOTDODGE_SOUND="Bullet Time Shootdodge sound";
+OPTION_DESC_BT_SHOOTDODGE_SOUND="The sound that will play when Bullet Time Shootdodge is activated.\n\nDefault is Max Payne 3.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_BT_LOOP_SOUND="Bullet Time Loop sound";
+OPTION_DESC_BT_LOOP_SOUND="The sound that will play when Bullet Time is active.\n\nDefault is Max Payne 3.\n\nChanges will take effect next time Bullet Time is activated.";
+
+OPTION_TITLE_BT_STOP_SOUND="Bullet Time Stop sound";
+OPTION_DESC_BT_STOP_SOUND="The sound that will play when Bullet Time is deactivated.\n\nDefault is Max Payne 3.\n\nChanges will take effect next time Bullet Time is activated.";

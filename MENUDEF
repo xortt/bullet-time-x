@@ -6,125 +6,61 @@ AddOptionMenu "ModOptionsMenu"
 
 OptionMenu "BtOptions"
 {
-    Title "Bullet Time X Options"
-    
-    StaticText "Version 1.3.1", 1
+    Control "$CONTROL_TITLE_BULLET_TIME", "bullettime"
+    Control "$CONTROL_TITLE_BULLET_TIME_SHOOTDODGE", "bullettime_dodge"
+
+    StaticText " "
+
+    TooltipCommand "$OPTION_TITLE_HANDLER_RELOAD", "$OPTION_DESC_HANDLER_RELOAD", "", "bullettime_handler_reload"
+    TooltipCommand "$OPTION_TITLE_HANDLER_REMOVE", "$OPTION_DESC_HANDLER_REMOVE", "", "bullettime_handler_remove", "$OPTION_WARN_HANDLER_REMOVE"
+
     StaticText " "
 
     Submenu "Adrenaline System", "BtAdrenalineSystem"
     Submenu "Time Multipliers", "BtTimeMultipliers"
     Submenu "HUD and Display", "BtHudDisplay"
     Submenu "Music and Sound", "BtSound"
-
-    StaticText " "
-
-    Command "Reload Bullet Time X settings", "bullettime_handler_reload"
-    SafeCommand "Remove Bullet Time X from current savegame", "bullettime_handler_remove", "Are you sure you want to delete Bullet Time X from the current savegame? If you want to recover it later, just press the 'Reload Bullet Time X settings' button in the options menu."
 }
 
 OptionMenu "BtAdrenalineSystem"
 {
     Title "Adrenaline System"
 
+    TooltipOption "$OPTION_TITLE_ADRENALINE_UNLIMITED", "$OPTION_DESC_ADRENALINE_UNLIMITED", "", "bt_adrenaline_unlimited", "OnOff"
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_DURATION", "$OPTION_DESC_ADRENALINE_DURATION", "", "bt_adrenaline_duration", 5, 120, 5
+    
     StaticText " "
-    StaticText "Changes will take effect on next level or after reloading Bullet Time X settings"
 
-    StaticText " "
-    StaticText " "
-
-    Option "Unlimited Bullet Time", "bt_adrenaline_unlimited", "OnOff"
-    StaticText " "
-    Slider "Bullet Time Duration", "bt_adrenaline_duration", 5, 120, 5
-    StaticText "                         Default is 15 seconds"
-
-    StaticText " "
-    Slider "Adrenaline Berserk Effect Duration", "bt_berserk_effect_duration", 5, 120, 5
-    StaticText "                         Default is 30 seconds"
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_REGEN_SPEED", "$OPTION_DESC_ADRENALINE_REGEN_SPEED", "", "bt_adrenaline_regen_speed", 0, 35, 1
 
     StaticText " "
 
-    StaticText " "
-    Slider "Adrenaline Regeneration Speed", "bt_adrenaline_regen_speed", 0, 35, 1
-    StaticText "                Default is 6"
+    TooltipOption "$OPTION_TITLE_ADRENALINE_KILL_REWARD_WHEN_ACTIVE", "$OPTION_DESC_ADRENALINE_KILL_REWARD_WHEN_ACTIVE", "", "bt_adrenaline_kill_reward_when_active", "OnOff"
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_KILL_REWARD_MULTIPLIER", "$OPTION_DESC_ADRENALINE_KILL_REWARD_MULTIPLIER", "", "bt_adrenaline_kill_reward_multiplier", 0, 10, 0.2
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER", "$OPTION_DESC_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER", "", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 0.2
 
     StaticText " "
-    Option "Adrenaline Kill Rewards during Bullet Time", "bt_adrenaline_kill_reward_when_active", "OnOff"
-    StaticText " "
-
-    Slider "Adrenaline Kill Reward Multiplier", "bt_adrenaline_kill_reward_multiplier", 0, 10, 0.2
-    StaticText "                Default is 4"
-    Slider "Adrenaline Player Damage Reward Multiplier", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 0.2
-    StaticText "                Default is 4"
 }
 
 OptionMenu "BtTimeMultipliers"
 {
     Title "Time Multipliers"
 
-    StaticText " "
-    StaticText "Changes will take effect next time Bullet Time is activated"
-    StaticText "    "
+    StaticText "$OPTION_TITLE_DEFAULT_MULTIPLIERS", "OMNIBLUE"
+
+    TooltipSlider "$OPTION_TITLE_WORLD_MULTIPLIER", "$OPTION_DESC_WORLD_MULTIPLIER", "", "bt_multiplier", 0, 20, 1
+    TooltipSlider "$OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER", "$OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER", "", "bt_player_movement_multiplier", 1, 20, 1
+    TooltipSlider "$OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER", "$OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER", "", "bt_player_weapon_speed_multiplier", 1, 20, 1
+    TooltipOption "$OPTION_TITLE_ENABLE_PLAYER_THIRDPERSON_SLOWDOWN", "$OPTION_DESC_ENABLE_PLAYER_THIRDPERSON_SLOWDOWN", "", "bt_player_model_slowdown", "OnOff"
 
     StaticText " "
+    StaticText "$OPTION_TITLE_SHOOTDODGE_MULTIPLIERS", "OMNIBLUE"
 
-    StaticText "Default Multipliers", 1
-    StaticText " "
-    Slider "World Multiplier", "bt_multiplier", 0, 20, 1
-    StaticText "                Default is 4"
-    StaticText " (Affects world time, such as monsters, items, lifts, doors, etc. A value of 0 will freeze the world)"
-    StaticText " "
-    Slider "Player Movement Multiplier", "bt_player_movement_multiplier", 1, 20, 1
-    StaticText "                Default is 4"
-    Slider "Player Weapons Multiplier", "bt_player_weapon_speed_multiplier", 1, 20, 1
-    StaticText "                Default is 3"
-    StaticText " "
-    Option "Enable Player thirdperson slowdown", "bt_player_model_slowdown", "OnOff"
-    StaticText "                 Default is On"
-    StaticText "      (Affects player thirdperson model only, uses Player Weapons Multiplier)"
-    
-    StaticText " "
-    StaticText " "
+    TooltipOption "$OPTION_TITLE_ENABLE_SHOOTDODGE_MULTIPLIERS", "$OPTION_DESC_ENABLE_SHOOTDODGE_MULTIPLIERS", "", "bt_dodge_enable", "OnOff"
+    TooltipSlider "$OPTION_TITLE_WORLD_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_WORLD_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_multiplier", 0, 20, 1
+    TooltipSlider "$OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_player_movement_multiplier", 1, 20, 1
+    TooltipSlider "$OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_player_weapon_speed_multiplier", 1, 20, 1
 
-    StaticText "Shootdodge Multipliers", 1
-    StaticText " "
-    Option "Enable Shootdodge Multipliers", "bt_dodge_enable", "OnOff"
-    StaticText " "
-    Slider "World Multiplier", "bt_dodge_multiplier", 0, 20, 1
-    StaticText "                 Default is 14"
-    Slider "Player Movement Multiplier", "bt_dodge_player_movement_multiplier", 1, 20, 1
-    StaticText "                 Default is 14"
-    Slider "Player Weapons Multiplier", "bt_dodge_player_weapon_speed_multiplier", 1, 20, 1
-    StaticText "                Default is 6"
-
-    StaticText " "
-    StaticText " "
-
-    StaticText "Berserk Multipliers", 1
-    StaticText " "
-    Option "Enable Berserk Multipliers", "bt_berserk_effect_enable", "OnOff"
-
-    StaticText " "
-    Slider "World Multiplier", "bt_berserk_multiplier", 0, 20, 1
-    StaticText "                Default is 6"
-    Slider "Player Movement Multiplier", "bt_berserk_player_movement_multiplier", 1, 20, 1
-    StaticText "                Default is 2"
-    Slider "Player Weapons Multiplier", "bt_berserk_player_weapon_speed_multiplier", 1, 20, 1
-    StaticText "                Default is 2"
-
-
-    StaticText " "
-    StaticText " "
-
-    StaticText "Berserk + Shootdodge Multipliers", 1
-    StaticText " "
-    Slider "World Multiplier", "bt_berserk_dodge_multiplier", 0, 20, 1
-    StaticText "                 Default is 0 (full freeze)"
-    Slider "Player Movement Multiplier", "bt_berserk_dodge_player_movement_multiplier", 1, 20, 1
-    StaticText "                 Default is 14"
-    Slider "Player Weapons Multiplier", "bt_berserk_dodge_player_weapon_speed_multiplier", 1, 20, 1
-    StaticText "                Default is 5"
-        
-    StaticText " "
     StaticText " "
 }
 
@@ -132,45 +68,32 @@ OptionMenu "BtHudDisplay"
 {
     Title "HUD and Display"
 
-    StaticText " "
-    StaticText "Some changes will take effect next time Bullet Time is activated"
+    TooltipOption "$OPTION_TITLE_ENABLE_WHITE_BLINK_SHADER_EFFECT", "$OPTION_DESC_ENABLE_WHITE_BLINK_SHADER_EFFECT", "", "bt_shader_white_blink_enable", "OnOff"
+    TooltipOption "$OPTION_TITLE_ENABLE_BLUR_SHADER_EFFECT", "$OPTION_DESC_ENABLE_BLUR_SHADER_EFFECT", "", "bt_shader_blur_enable", "OnOff"
 
     StaticText " "
-    Option "Enable White Blink Shader Effect", "bt_shader_white_blink_enable", "OnOff"
-    Option "Enable Blur Shader Effect", "bt_shader_blur_enable", "OnOff"
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_HORIZONTAL_OFFSET", "$OPTION_DESC_ADRENALINE_COUNTER_HORIZONTAL_OFFSET", "", "bt_counter_horizontal_offset", 0, 100, 1
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_VERTICAL_OFFSET", "$OPTION_DESC_ADRENALINE_COUNTER_VERTICAL_OFFSET", "", "bt_counter_vertical_offset", 0, 100, 1
 
     StaticText " "
-    Slider "Adrenaline Counter Horizontal Offset", "bt_counter_horizontal_offset", 0, 100, 1
-    StaticText "                 Default is 95"
-
-    Slider "Adrenaline Counter Vertical Offset", "bt_counter_vertical_offset", 0, 100, 1
-    StaticText "                 Default is 10"
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_SCALE", "$OPTION_DESC_ADRENALINE_COUNTER_SCALE", "", "bt_counter_scale", 1, 10, 1
 
     StaticText " "
-    Slider "Adrenaline Counter Scale", "bt_counter_scale", 1, 10, 1
-    StaticText "                Default is 7"
-    StaticText " "
-
-    Option "Hide Bullet Time activation message", "bt_hide_message", "OnOff"
 }
 
 OptionMenu "BtSound"
 {
     Title "Sound"
 
-    StaticText " "
-    StaticText "Some changes will take effect next time Bullet Time is activated"
+    TooltipSlider "$OPTION_TITLE_MUSIC_VOLUME_DURING_BT", "$OPTION_DESC_MUSIC_VOLUME_DURING_BT", "", "bt_music_volume", 0.00, 1.00, 0.05, 2
 
     StaticText " "
-
-    Slider "Music volume during Bullet Time", "bt_music_volume", 0.00, 1.00, 0.05, 2
-    StaticText "                   Default is 0.15"
+    TooltipOption "$OPTION_TITLE_BT_START_SOUND", "$OPTION_DESC_BT_START_SOUND", "", "bt_sound_start_type", "BtSoundTypes"
+    TooltipOption "$OPTION_TITLE_BT_SHOOTDODGE_SOUND", "$OPTION_DESC_BT_SHOOTDODGE_SOUND", "", "bt_sound_dodge_type", "BtSoundDodgeTypes"
+    TooltipOption "$OPTION_TITLE_BT_LOOP_SOUND", "$OPTION_DESC_BT_LOOP_SOUND", "", "bt_sound_loop_type", "BtSoundLoopTypes"
+    TooltipOption "$OPTION_TITLE_BT_STOP_SOUND", "$OPTION_DESC_BT_STOP_SOUND", "", "bt_sound_stop_type", "BtSoundTypes"
 
     StaticText " "
-    Option "Bullet Time Start sound", "bt_sound_start_type", "BtSoundTypes"
-    Option "Bullet Time Shootdodge sound", "bt_sound_dodge_type", "BtSoundDodgeTypes"
-    Option "Bullet Time Loop sound", "bt_sound_loop_type", "BtSoundLoopTypes"
-    Option "Bullet Time Stop sound", "bt_sound_stop_type", "BtSoundTypes"
 }
 
 OptionValue "BtSoundTypes"
