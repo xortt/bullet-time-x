@@ -36,7 +36,7 @@ class BulletTimeStatic : StaticEventHandler
             btHandler.reloadHandler();
         }
 
-        if (btEventHandlerInitialized) return;
+        if (btEventHandlerInitialized || btHandlerRemoved) return;
         if (btHandler) btHandler.NetworkProcess(e);
     }
 
