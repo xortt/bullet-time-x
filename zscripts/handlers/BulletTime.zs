@@ -380,50 +380,54 @@ class BulletTime : EventHandler
 
 	void removeHandler(bool fromStaticHandler)
 	{
-		if (btActive) console.printf("Bullet Time X: Bullet Time is active, please turn it off before removing it.");
-		else 
+		if (btActive) 
 		{
-			Actor curActor;
-			ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
-
-			while (curActor = Actor(actorList.Next()))
-			{
-				curActor.SetInventory("BtItemData", 0);
-			}
-
-			PlayerPawn doomPlayer;
-			ThinkerIterator playerList = ThinkerIterator.Create("PlayerPawn", Thinker.STAT_PLAYER);
-
-			while (doomPlayer = PlayerPawn(playerList.Next()) )
-			{
-				doomPlayer.SetInventory("BtItemData", 0);
-				doomPlayer.SetInventory("BtAdrenaline", 0);
-				doomPlayer.SetInventory("BtBerserkerCounter", 0);
-				doomPlayer.SetInventory("BtHandlerRef", 0);
-			}
-
-			if (postTickController) postTickController.destroy();
-			
-			BulletTimeStatic staticHandler = BulletTimeStatic(StaticEventHandler.Find("BulletTimeStatic"));
-			staticHandler.btEventHandlerInitialized = false;
-			staticHandler.btHandlerRemoved = true;
-
-			console.printf("Bullet Time X: Removed successfully from current game.");
-
-			if (!fromStaticHandler && !bDESTROYED) // Safety check, a flag found in Object itself.
-				Destroy();
+			console.printf("Bullet Time X: Bullet Time is active, please turn it off before removing it.");
+			return;
 		}
+
+		Actor curActor;
+		ThinkerIterator actorList = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
+
+		while (curActor = Actor(actorList.Next()))
+		{
+			curActor.SetInventory("BtItemData", 0);
+		}
+
+		PlayerPawn doomPlayer;
+		ThinkerIterator playerList = ThinkerIterator.Create("PlayerPawn", Thinker.STAT_PLAYER);
+
+		while (doomPlayer = PlayerPawn(playerList.Next()) )
+		{
+			doomPlayer.SetInventory("BtItemData", 0);
+			doomPlayer.SetInventory("BtAdrenaline", 0);
+			doomPlayer.SetInventory("BtBerserkerCounter", 0);
+			doomPlayer.SetInventory("BtHandlerRef", 0);
+		}
+
+		if (postTickController) postTickController.destroy();
+		
+		BulletTimeStatic staticHandler = BulletTimeStatic(StaticEventHandler.Find("BulletTimeStatic"));
+		staticHandler.btEventHandlerInitialized = false;
+		staticHandler.btHandlerRemoved = true;
+
+		console.printf("Bullet Time X: Removed successfully from current game.");
+
+		if (!fromStaticHandler && !bDESTROYED) // Safety check, a flag found in Object itself.
+			Destroy();
 	}
 
 	void reloadHandler()
 	{
-		if (btActive) console.printf("Bullet Time X: Bullet Time is active, please turn it off before reloading its settings.");
-		else
+		if (btActive) 
 		{
-			WorldLoaded(null);
-
-			console.printf("Bullet Time X: Settings reloaded.");
+			console.printf("Bullet Time X: Bullet Time is active, please turn it off before reloading its settings.");
+			return;
 		}
+		
+		WorldLoaded(null);
+
+		console.printf("Bullet Time X: Settings reloaded.");
 	}
 
 	void initCvarVariables(bool fromBtActivation)
