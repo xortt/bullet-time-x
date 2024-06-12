@@ -27,17 +27,17 @@ OptionMenu "BtAdrenalineSystem"
     Title "Adrenaline System"
 
     TooltipOption "$OPTION_TITLE_ADRENALINE_UNLIMITED", "$OPTION_DESC_ADRENALINE_UNLIMITED", "", "bt_adrenaline_unlimited", "OnOff"
-    TooltipSlider "$OPTION_TITLE_ADRENALINE_DURATION", "$OPTION_DESC_ADRENALINE_DURATION", "", "bt_adrenaline_duration", 5, 120, 5
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_DURATION", "$OPTION_DESC_ADRENALINE_DURATION", "", "bt_adrenaline_duration", 5, 120, 5, 0
     
     StaticText " "
 
-    TooltipSlider "$OPTION_TITLE_ADRENALINE_REGEN_SPEED", "$OPTION_DESC_ADRENALINE_REGEN_SPEED", "", "bt_adrenaline_regen_speed", 0, 35, 1
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_REGEN_SPEED", "$OPTION_DESC_ADRENALINE_REGEN_SPEED", "", "bt_adrenaline_regen_speed", 0, 35, 1, 0
 
     StaticText " "
 
     TooltipOption "$OPTION_TITLE_ADRENALINE_KILL_REWARD_WHEN_ACTIVE", "$OPTION_DESC_ADRENALINE_KILL_REWARD_WHEN_ACTIVE", "", "bt_adrenaline_kill_reward_when_active", "OnOff"
-    TooltipSlider "$OPTION_TITLE_ADRENALINE_KILL_REWARD_MULTIPLIER", "$OPTION_DESC_ADRENALINE_KILL_REWARD_MULTIPLIER", "", "bt_adrenaline_kill_reward_multiplier", 0, 10, 0.2
-    TooltipSlider "$OPTION_TITLE_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER", "$OPTION_DESC_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER", "", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 0.2
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_KILL_REWARD_MULTIPLIER", "$OPTION_DESC_ADRENALINE_KILL_REWARD_MULTIPLIER", "", "bt_adrenaline_kill_reward_multiplier", 0, 10, 0.2, 1
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER", "$OPTION_DESC_ADRENALINE_PLAYER_DAMAGE_REWARD_MULTIPLIER", "", "bt_adrenaline_player_damage_reward_multiplier", 0, 10, 0.2, 1
 
     StaticText " "
 }
@@ -47,19 +47,18 @@ OptionMenu "BtTimeMultipliers"
     Title "Time Multipliers"
 
     StaticText "$OPTION_TITLE_DEFAULT_MULTIPLIERS", "OMNIBLUE"
-
-    TooltipSlider "$OPTION_TITLE_WORLD_MULTIPLIER", "$OPTION_DESC_WORLD_MULTIPLIER", "", "bt_multiplier", 0, 20, 1
-    TooltipSlider "$OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER", "$OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER", "", "bt_player_movement_multiplier", 1, 20, 1
-    TooltipSlider "$OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER", "$OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER", "", "bt_player_weapon_speed_multiplier", 1, 20, 1
+    TooltipSlider "$OPTION_TITLE_WORLD_MULTIPLIER", "$OPTION_DESC_WORLD_MULTIPLIER", "", "bt_multiplier", 0, 20, 1, 0
+    TooltipSlider "$OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER", "$OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER", "", "bt_player_movement_multiplier", 1, 20, 1, 0
+    TooltipSlider "$OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER", "$OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER", "", "bt_player_weapon_speed_multiplier", 1, 20, 1, 0
     TooltipOption "$OPTION_TITLE_ENABLE_PLAYER_THIRDPERSON_SLOWDOWN", "$OPTION_DESC_ENABLE_PLAYER_THIRDPERSON_SLOWDOWN", "", "bt_player_model_slowdown", "OnOff"
 
     StaticText " "
     StaticText "$OPTION_TITLE_SHOOTDODGE_MULTIPLIERS", "OMNIBLUE"
 
     TooltipOption "$OPTION_TITLE_ENABLE_SHOOTDODGE_MULTIPLIERS", "$OPTION_DESC_ENABLE_SHOOTDODGE_MULTIPLIERS", "", "bt_dodge_enable", "OnOff"
-    TooltipSlider "$OPTION_TITLE_WORLD_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_WORLD_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_multiplier", 0, 20, 1
-    TooltipSlider "$OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_player_movement_multiplier", 1, 20, 1
-    TooltipSlider "$OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_player_weapon_speed_multiplier", 1, 20, 1
+    TooltipSlider "$OPTION_TITLE_WORLD_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_WORLD_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_multiplier", 0, 20, 1, 0
+    TooltipSlider "$OPTION_TITLE_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_PLAYER_MOVEMENT_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_player_movement_multiplier", 1, 20, 1, 0
+    TooltipSlider "$OPTION_TITLE_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE", "$OPTION_DESC_PLAYER_WEAPONS_MULTIPLIER_SHOOTDODGE", "", "bt_dodge_player_weapon_speed_multiplier", 1, 20, 1, 0
 
     StaticText " "
 }
@@ -72,11 +71,11 @@ OptionMenu "BtHudDisplay"
     TooltipOption "$OPTION_TITLE_ENABLE_BLUR_SHADER_EFFECT", "$OPTION_DESC_ENABLE_BLUR_SHADER_EFFECT", "", "bt_shader_blur_enable", "OnOff"
 
     StaticText " "
-    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_HORIZONTAL_OFFSET", "$OPTION_DESC_ADRENALINE_COUNTER_HORIZONTAL_OFFSET", "", "bt_counter_horizontal_offset", 0, 100, 1
-    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_VERTICAL_OFFSET", "$OPTION_DESC_ADRENALINE_COUNTER_VERTICAL_OFFSET", "", "bt_counter_vertical_offset", 0, 100, 1
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_HORIZONTAL_OFFSET", "$OPTION_DESC_ADRENALINE_COUNTER_HORIZONTAL_OFFSET", "", "bt_counter_horizontal_offset", 0, 100, 1, 0
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_VERTICAL_OFFSET", "$OPTION_DESC_ADRENALINE_COUNTER_VERTICAL_OFFSET", "", "bt_counter_vertical_offset", 0, 100, 1, 0
 
     StaticText " "
-    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_SCALE", "$OPTION_DESC_ADRENALINE_COUNTER_SCALE", "", "bt_counter_scale", 1, 10, 1
+    TooltipSlider "$OPTION_TITLE_ADRENALINE_COUNTER_SCALE", "$OPTION_DESC_ADRENALINE_COUNTER_SCALE", "", "bt_counter_scale", 1, 10, 1, 0
 
     StaticText " "
 }
