@@ -98,25 +98,18 @@ class BulletTimeStatic : StaticEventHandler
 
     override void WorldLoaded(WorldEvent e)
 	{
-        if (e.IsSaveGame)
-        { // when a saved game is loaded, there is a chance that it doesnt have bullet time handler so it must be initialized
-            btEventHandlerInitialized = false;
-            btHandler = null;
-        }
-        if (btEventHandlerInitialized || btHandlerRemoved) return;
         if (btHandler) btHandler.WorldLoaded(e);
+
+        btEventHandlerInitialized = false;
+        btHandler = null;
     }
 
     override void WorldUnloaded(WorldEvent e)
     {
-        if (e.IsSaveGame)
-        {
-            btEventHandlerInitialized = false;
-            btHandler = null;
-        }
-
-        if (btEventHandlerInitialized || btHandlerRemoved) return;
         if (btHandler) btHandler.WorldUnloaded(e);
+
+        btEventHandlerInitialized = false;
+        btHandler = null;
     }
 
     override void RenderOverlay(RenderEvent e)

@@ -80,6 +80,8 @@ class BulletTime : EventHandler
 	// post tick bt controller
 	PostTickDummyController postTickController;
 
+	BulletTimeStatic btStaticHandler;
+
 	override void NetworkProcess(ConsoleEvent e)
 	{
 		if (!createdFromEventStaticHandler && e.Name == "bt_handler_remove")
@@ -186,8 +188,7 @@ class BulletTime : EventHandler
 
 	override void WorldTick()
 	{
-		if (!btHandlerInitialized && !createdFromEventStaticHandler) 
-			removeStaticHandler(); // prevents double initialization of handler
+		if (btHandlerInitialized && !createdFromEventStaticHandler) removeStaticHandler(); // prevents double initialization of handler
 
 		if (onTitleMapOrFrozen) return; // don't do anything when on titlemap or frozen
 
@@ -373,9 +374,11 @@ class BulletTime : EventHandler
 
 	void removeStaticHandler()
 	{
-		BulletTimeStatic handler = BulletTimeStatic(StaticEventHandler.Find("BulletTimeStatic"));
-		handler.btEventHandlerInitialized = true;
-		handler.btHandler = null;
+		if (!btStaticHandler) btStaticHandler = BulletTimeStatic(StaticEventHandler.Find("BulletTimeStatic"));
+		if (!btStaticHandler.btHandler) return;
+
+		btStaticHandler.btEventHandlerInitialized = true;
+		btStaticHandler.btHandler = null;
 	}
 
 	void removeHandler(bool fromStaticHandler)
@@ -392,6 +395,14 @@ class BulletTime : EventHandler
 		while (curActor = Actor(actorList.Next()))
 		{
 			curActor.SetInventory("BtItemData", 0);
+		}
+
+		BtItemData btItemData;
+		ThinkerIterator btItemDataList = ThinkerIterator.Create("BtItemData", 10);
+
+		while (btItemData = BtItemData(btItemDataList.Next()))
+		{
+			btItemData.Destroy();
 		}
 
 		PlayerPawn doomPlayer;
@@ -554,9 +565,11 @@ class BulletTime : EventHandler
 			btPlayerWeaponSpeedMultiplier = cvBtPlayerWeaponSpeedMultiplier;
 		}
 
+
 		postTickController.btMultiplier = btMultiplier;
 		postTickController.btPlayerMovementMultiplier = btPlayerMovementMultiplier;
 		postTickController.btPlayerWeaponSpeedMultiplier = btPlayerWeaponSpeedMultiplier;
+		
 
 		return doSlowGame;
 	}
