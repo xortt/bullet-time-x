@@ -6,7 +6,7 @@ defaultbind b bullettime
 
 addmenukey "Shootdodge" bullettime_dodge
 alias bullettime_dodge "netevent bt_activate_dodge"
-default bind v
+defaultbind v bullettime_dodge
 
 alias bullettime_handler_reload "netevent bt_handler_reload"
 alias bullettime_handler_remove "netevent bt_handler_remove"
