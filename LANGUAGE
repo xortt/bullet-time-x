@@ -11,7 +11,6 @@ OPTION_DESC_HANDLER_RELOAD="This will reload Bullet Time X settings. Making ever
 
 OPTION_TITLE_HANDLER_REMOVE="Remove Bullet Time X from current savegame";
 OPTION_DESC_HANDLER_REMOVE="This will remove Bullet Time X from the current savegame. If you want to recover Bullet Time X from a savegame that was deleted, press 'Reload Bullet Time X settings' to restart it.\n\nBullet Time must be off in order to remove it.";
-OPTION_WARN_HANDLER_REMOVE="Are you sure you want to delete Bullet Time X from the current savegame?";
 
 
 OPTION_TITLE_ADRENALINE_UNLIMITED="Unlimited Bullet Time";

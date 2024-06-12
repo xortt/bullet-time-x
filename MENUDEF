@@ -12,7 +12,7 @@ OptionMenu "BtOptions"
     StaticText " "
 
     TooltipCommand "$OPTION_TITLE_HANDLER_RELOAD", "$OPTION_DESC_HANDLER_RELOAD", "", "bullettime_handler_reload"
-    TooltipCommand "$OPTION_TITLE_HANDLER_REMOVE", "$OPTION_DESC_HANDLER_REMOVE", "", "bullettime_handler_remove", "$OPTION_WARN_HANDLER_REMOVE"
+    TooltipCommand "$OPTION_TITLE_HANDLER_REMOVE", "$OPTION_DESC_HANDLER_REMOVE", "", "bullettime_handler_remove"
 
     StaticText " "
 
