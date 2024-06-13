@@ -810,11 +810,11 @@ class BulletTime : EventHandler
 					else if (curActor.actorRef.health < -20) 
 						adrenalineValue += 1 * cvBtAdrenalineKillRewardMultiplier;
 
-					// adrenaline based on monster health
-					adrenalineValue += clamp(sqrt(curActor.startHealth) * cvBtAdrenalineKillRewardMultiplier, 0, 350);
 				}
 
-				
+				// adrenaline based on monster health
+				if (curActor.startHealth > 0) adrenalineValue += clamp(sqrt(curActor.startHealth) * cvBtAdrenalineKillRewardMultiplier, 0, 350);
+
 				PlayerPawn doomPlayer = curActor.attacker == curActor.actorRef
 					? firstPlayer // special case when monster kills itself (ex: in some mods its used by headshots or self damage)
 					: PlayerPawn(curActor.attacker);
