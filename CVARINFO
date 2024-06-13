@@ -20,7 +20,7 @@ server int bt_berserk_dodge_player_weapon_speed_multiplier = 2;
 server int bt_adrenaline_unlimited = 0;
 server int bt_adrenaline_duration = 15;
 server int bt_adrenaline_regen_speed = 6;
-server int bt_adrenaline_kill_reward_when_active = 0;
+server int bt_adrenaline_kill_reward_when_active = 1;
 server float bt_adrenaline_kill_reward_multiplier = 4;
 server float bt_adrenaline_player_damage_reward_multiplier = 4;
 
